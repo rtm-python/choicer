@@ -1,0 +1,29 @@
+{%- extends "layout.html" -%}
+{%- set hidden_content = True -%}
+{%- set title = '%s Option' % action -%}
+{%- block content -%}
+	<div class="p-2">
+		<div class="card shadow p-2">
+			<div class="ui-background"></div>
+			<form id="form" name="{{ form.form_name }}" class="ui-foreground" method="post" action="">
+			 	{{ form.csrf_token }}
+				<div class="row g-2 pt-2 pb-2">
+					<div class="col-12">
+						<small>{{ __('Value') }}</small>
+						<input autofocus name="{{ form.value.label.text }}" class="form-control form-control-sm ui-input{%- if form.value.errors -%}{{ ' is-invalid' }}{%- endif -%}" type="text" placeholder="{{ __('Value') }}" aria-label="{{ __('Value') }}" value="{{ form.value.data|default('', True) }}">
+						{%- for error in form.value.errors -%}
+							<div class="invalid-feedback">{{ __(error) }}</div>
+						{%- endfor -%}
+					</div>
+					<input default id="{{ form.submit.label.text }}" name="{{ form.submit.label.text }}" class="d-none" type="submit">
+				</div>
+			</form>
+		</div>
+	</div>
+{%- endblock -%}
+{%- set action_items -%}
+	<label class="nav-item pl-zero" for="{{ form.submit.label.text }}" onmouseover="" style="cursor: pointer;" tabindex=0><span class="nav-icon oi oi-check"></span><div class="d-none d-sm-inline">{{ __('Submit') }}</div></label>
+{%- endset -%}
+{%- set additional_items -%}
+	<a class="nav-item pl-zero" href="{{ url_for('option.get_catalog') }}"><span class="nav-icon oi oi-x"></span><div class="d-none d-sm-inline">{{ __('Cancel') }}</div></a>
+{%- endset -%}

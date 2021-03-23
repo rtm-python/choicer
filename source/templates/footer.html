@@ -1,0 +1,15 @@
+{%- if action_items -%}
+	<div class="footer-placeholder"></div>
+	<footer class="shadow py-2">
+		<div class="ui-background"></div>
+		{{ footer_collapse }}
+		<div class="ui-foreground d-flex w-100 justify-content-between align-items-center">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+				{{ action_items }}
+			</div>
+			<div class="d-flex w-100 justify-content-end align-items-center">
+				{{ additional_items }}
+			</div>
+		</div>
+	</footer>
+{%- endif -%}

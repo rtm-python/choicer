@@ -1,0 +1,34 @@
+{%- set logout_span -%}<span class="nav-icon oi oi-account-logout"></span>{%- endset -%}
+{%- set menu_items = [ ('#', __('Live')), (url_for('poll.get_catalog'), __('Catalog')), ('#',__('About')), (url_for('root.sign_out'), logout_span) ] -%}
+<header class="sticky-top shadow">
+	<div class="ui-background"></div>
+	<div class="ui-foreground d-flex w-100 justify-content-between align-items-center">
+		<div>
+			<a class="nav-title" href="{{ url_for('root.get_home') }}">
+				{%- if title -%}
+					<h1 class="d-inline-block m-0">{{ __(title) }}</h1>
+				{%- else -%}
+					<h1 class="d-inline-block m-0">{{ basename }}</h1>
+				{%- endif -%}
+			</a>
+		</div>
+		<div class="nav-foreground d-flex justify-content-end align-items-center">
+			{{ nav_items }}
+			{%- if current_user.is_authenticated -%}
+				{%- for menu_link, menu_text in menu_items -%}
+					<a class="nav-item d-none d-md-inline-block" href="{{ menu_link }}">{{ menu_text }}</a>
+				{%- endfor -%}
+				<a class="nav-item d-inline-block d-md-none" href="#collapseMenu" data-bs-toggle="collapse"><span class="nav-icon oi oi-menu"></span></a>
+			{%- endif -%}
+		</div>
+	</div>
+	{{ header_collapse }}
+	<div id="collapseMenu" class="collapse ui-foreground">
+		<div class="collapse-separator d-block d-md-none"></div>
+		{%- if current_user.is_authenticated -%}
+			{%- for menu_link, menu_text in menu_items -%}
+				<a class="nav-item d-block d-md-none" href="{{ menu_link }}">{{ menu_text }}</a>
+			{%- endfor -%}
+		{%- endif -%}
+	</div>
+</header>

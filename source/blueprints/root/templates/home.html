@@ -1,0 +1,41 @@
+{%- extends "layout.html" -%}
+{%- set hidden_content = True -%}
+{%- set nav_items -%}
+	{%- if not current_user.is_authenticated -%}
+		{%- block script -%}
+			<script src="{{ url_for('static', filename='js/hasTouchScreen.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/signInForm.js') }}"></script>
+		{%- endblock -%}
+		<form id="signInForm" name="{{ form.form_name }}" class="w-100" method="post" action="">
+		 	{{ form.csrf_token }}
+			<input id="hasTouchScreen" name="{{ form.has_touch_screen.label.text }}" class="d-none" type="text">
+			<div class="form-row d-flex justify-content-end align-items-center">
+				<div class="text-light"><span class="nav-icon oi oi-account-login"></span></div>
+				{%- if form.url_token.data -%}
+					<input name="{{ form.url_token.label.text }}"  class="d-none" type="text" value="{{ form.url_token.data|default('', True) }}">
+					<div>
+						<input name="{{ form.submit.label.text }}" class="btn btn-sm btn-outline-light" type="submit" value="{{ __('Activate Token') }}">
+					</div>
+				{%- else -%}
+					<div class="col-4">
+						<input autofocus name="{{ form.pin.label.text }}" class="form-control form-control-sm ui-input text-center" type="password" placeholder="{{ __('PIN') }}" aria-label="{{ __('PIN') }}" value="{{ form.pin.data|default('', True) }}"{%- if form.password.data -%}{{ ' readonly' }}{%- endif -%}>
+					</div>
+					{%- if form.password.data -%}
+						<div class="col-4" style="margin-left: 0.5rem;">
+							<input id="signInFormPassword" name="{{ form.password.label.text }}"  class="form-control form-control-sm text-center ui-input" type="text" value="{{ form.password.data|default('', True) }}">
+						</div>
+						<div>
+							<a class="text-light" href="{{ url_for('root.get_home') }}"><span class="nav-icon oi oi-x"></span></a>
+						</div>
+					{%- else -%}
+						<input id="signInFormPassword" name="{{ form.password.label.text }}"  class="d-none" type="text">
+						<input name="{{ form.submit.label.text }}" class="d-none" type="submit">
+						<div>
+							<a id="signInFormSubmit" name="{{ form.submit.label.text }}" class="text-light" href="#"><span class="nav-icon oi oi-check"></span></a>
+						</div>
+					{%- endif -%}
+				{%- endif -%}
+			</div>
+		</form>
+	{%- endif -%}
+{%- endset -%}

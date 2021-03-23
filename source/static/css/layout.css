@@ -1,0 +1,166 @@
+body {
+	font-family: 'Oswald', sans-serif;
+	background-image: url('/image/pattern.jpg');
+	background-repeat: repeat;
+}
+
+header {
+	padding: 0.25rem 1.5rem;
+	z-index: 1000;
+}
+
+footer {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 0.25rem 1.5rem;
+	z-index: 1000;
+}
+
+.footer-placeholder {
+	position: relative;
+	width: 100%;
+	padding: 1.5rem;
+}
+
+.ui-background {
+	background-color: black;
+	opacity: 0.7;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.ui-foreground {
+	color: whitesmoke;
+	position: relative;
+}
+
+.nav-foreground {
+	margin-right: -0.5rem;
+}
+
+.nav-title {
+	color: white ! important;
+}
+
+.nav-item {
+	padding: 0 0.5rem;
+	color: lightgrey;
+	text-decoration: none;
+	text-align: center;
+}
+
+.nav-item:hover {
+	color: white;
+	text-shadow: 1px 1px black;
+}
+
+.nav-icon {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	top: -0.05rem;
+}
+
+.pl-zero {
+	padding-left: 0 ! important;
+}
+
+.pr-zero {
+	padding-right: 0 ! important;
+}
+
+.nav-separator {
+	width: 1px;
+	height: 0.8rem;
+	margin: 0 0.5rem;
+	background: lightgrey;
+	display: inline-block;
+}
+
+.collapse-separator {
+	width: 100%;
+	height: 1px;
+	margin: 0.25rem 0;
+	background: lightgrey;
+	display: block;
+}
+
+.ui-input {
+	background-color: ghostwhite;
+	border-radius: .3rem;
+}
+
+.card {
+	background: transparent ! important;
+	border-radius: 0.5rem ! important;
+	overflow: hidden ! important;
+}
+
+.sortable-placeholder {
+	height: 5rem;
+	background-color: slategrey;
+	opacity: 0.25;
+	border-radius: 0.5rem;
+	border: 1px dashed black;
+	overflow: hidden;
+}
+
+.btn-in-stretched-link {
+	position: relative;
+	z-index: 1000;
+}
+
+.collapse-message {
+	background-color: slategrey;
+	border-radius: 0.5rem;
+	border: 1px solid black;
+	overflow: hidden;	
+}
+
+.dropzone {
+	padding: 0.5rem ! important;
+}
+
+.dz-preview {
+	background: transparent ! important;
+	margin: 0.5rem ! important;
+}
+
+.dz-remove {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	z-index: 100;
+	text-decoration: none;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: ghostwhite;
+	border-radius: 0.25rem;
+}
+
+.dz-remove:hover {
+	text-decoration: none ! important;
+	text-shadow: 2px 2px black;
+	color: white;
+}
+
+.dz-image {
+	border-radius: 0.25rem ! important;
+}
+
+.dz-image > img {
+	max-width: 100%;
+	max-height: 100%;
+	position: absolute;
+	display: flex;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+}

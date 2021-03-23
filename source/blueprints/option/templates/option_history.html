@@ -1,0 +1,85 @@
+{%- extends "layout.html" -%}
+{%- set hidden_content = True -%}
+{%- set title = 'Options Changes History' -%}
+{%- block content -%}
+	<div class="row row-cols-1 g-2 m-0">
+		{%- if list|length -%}
+			{%- for item, user, option  in list -%}
+				<div class="card shadow p-2 entity-uid" uid="{{ item.uid }}">
+					<div class="ui-background"></div>
+					<div class="ui-foreground">
+						<div class="d-flex justify-content-between">
+							<div class="text-left">{{ option.value }}</div>
+							<div class="text-left">{{ '%s %s' % (user.first_name, user.last_name) }}</div>
+						</div>
+						<div class="d-flex justify-content-between text-muted align-items-center">
+							<div class="text-left">{{ item.event }}</div>
+							<small>
+								{{ '%s: ' % __('Last modified') }}
+								<div class="d-inline-block modified-timestamp">{{ '%s+0000' % item.modified_utc.isoformat(timespec='milliseconds') }}</div>
+							</small>
+						</div>
+					</div>
+				</div>
+			{%- endfor -%}
+		{%- else -%}
+			<div class="card shadow p-2">
+				<div class="ui-background"></div>
+				<div class="ui-foreground">
+					<div class="text-center w-100">{{ __('No elements found') }}</div>
+				</div>
+			</div>
+		{%- endif -%}
+	</div>
+{%- endblock -%}
+{%- set footer_collapse -%}
+	<div id="collapseFilter" class="collapse ui-foreground">
+		<form id="filterForm" name="{{ filter.form_name }}" method="post" action="">
+		 	{{ filter.csrf_token }}
+			<div class="row g-2 pt-2 pb-2">
+				<div class="col-12 col-md-6">
+					<input autofocus name="{{ filter.username.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Username') }}" aria-label="{{ __('Username') }}" value="{{ filter.username.data|default('', True) }}">
+				</div>
+				<div class="col-12 col-md-6">
+					<input name="{{ filter.value.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Value') }}" aria-label="{{ __('Value') }}" value="{{ filter.value.data|default('', True) }}">
+				</div>
+				<div class="col-12 col-sm-8 col-md-10">
+					<input name="{{ filter.event.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Event') }}" aria-label="{{ __('Event') }}" value="{{ filter.event.data|default('', True) }}">
+				</div>
+				<div class="col-6 col-sm-2 col-md-1">
+					<input default name="{{ filter.submit.label.text }}" class="w-100 btn btn-sm btn-outline-light" type="submit" value="{{ __('Apply') }}">
+				</div>
+				<div class="col-6 col-sm-2 col-md-1">
+					<input name="{{ filter.reset.label.text }}" class="w-100 btn btn-sm btn-outline-light" type="submit" value="{{ __('Reset') }}">
+				</div>
+			</div>
+		</form>
+		<div class="collapse-separator"></div>
+	</div>
+{%- endset -%}
+{%- set action_items -%}
+	<a class="nav-item pl-zero" href="{{ url_for('option.get_catalog') }}"><span class="nav-icon oi oi-arrow-thick-left"></span><div class="d-none d-sm-inline">{{ __('Catalog') }}</div></a>
+	<div class="nav-separator"></div>
+	<a class="nav-item pl-zero" href="#collapseFilter" data-bs-toggle="collapse"><span class="nav-icon oi oi-magnifying-glass"></span><div class="d-none d-sm-inline">{{ __('Filter') }}</div></a>
+{%- endset -%}
+{%- set additional_items -%}
+	{%- if pagination.url_for_prev() -%}
+		<a class="nav-item pl-zero" href="{{ pagination.url_for_prev() }}"><span class="nav-icon oi oi-chevron-left"></span><div class="d-none d-md-inline">{{ __('Previous') }}</div></a>
+		<div class="nav-separator"></div>
+	{%- endif -%}
+	{%- if pagination.page_count > 1 -%}
+		<div class="nav-item">
+			{{ '%s: %d/%d' % (__('Page'), pagination.page_index, pagination.page_count) }}
+			<div class="nav-separator"></div>
+			<small class="d-none d-md-inline-block">{{ '%s: %d' % (__('Total elements'), pagination.entity_count) }}</small>
+		</div>
+	{%- elif pagination.entity_count > 0 -%}
+		<div class="nav-item">{{ '%s: %d' % (__('Total elements'), pagination.entity_count) }}</div>
+	{%- else -%}
+		<div class="nav-item">{{ __('Empty list') }}</div>
+	{%- endif -%}
+	{%- if pagination.url_for_next() -%}
+		<div class="nav-separator"></div>
+		<a class="nav-item pr-zero" href="{{ pagination.url_for_next() }}"><div class="d-none d-md-inline">{{ __('Next') }}</div><span class="nav-icon oi oi-chevron-right"></span></a>
+	{%- endif -%}
+{%- endset -%}

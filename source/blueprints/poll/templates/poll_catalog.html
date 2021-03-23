@@ -1,0 +1,110 @@
+{%- extends "layout.html" -%}
+{%- set hidden_content = True -%}
+{%- set title = 'Polls' -%}
+{%- block content -%}
+	<div id="sortable" class="row row-cols-1 g-2 m-0">
+		{%- if list|length -%}
+			{%- for item, file in list -%}
+				<div class="card shadow p-2 entity-uid" uid="{{ item.uid }}">
+					<a href="{{ url_for('poll.update', uid=item.uid) }}" class="stretched-link"></a>
+					<div class="ui-background"></div>
+					<div class="ui-foreground">
+						<div class="d-flex justify-content-between align-items-center">
+							<h4 class="text-left">{{ item.title }}</h4>
+							<a class="nav-item pl-zero btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse"><span class="nav-icon oi oi-x"></span><div class="d-none d-sm-inline">{{ __('Delete') }}</div></a>
+						</div>
+						<div class="collapse p-2 text-center collapse-message" id="collapseDelete{{ item.uid }}">
+							<p class="mb-1"><small>{{ __('Do you really want to delete this poll?') }}</small></p>
+							<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="{{ url_for('poll.delete', uid=item.uid) }}">{{ '%s poll' % __('Delete') }}</a>
+							<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse">{{ __('Cancel') }}</a>
+						</div>
+						<div class="text-left">{{ item.description }}</div>
+						<div class="d-flex justify-content-end text-muted align-items-center">
+							<small>
+								{{ '%s: ' % __('Last modified') }}
+								<div class="d-inline-block modified-timestamp">{{ '%s+0000' % item.modified_utc.isoformat(timespec='milliseconds') }}</div>
+							</small>
+						</div>
+					</div>
+				</div>
+			{%- endfor -%}
+		{%- else -%}
+			<div class="card shadow p-2">
+				<div class="ui-background"></div>
+				<div class="ui-foreground">
+					<div class="text-center w-100">{{ __('No elements found') }}</div>
+				</div>
+			</div>
+		{%- endif -%}
+	</div>
+	<div class="d-none">
+		<form id="reordererForm" name="{{ reorderer.form_name }}" method="post" action="">
+		 	{{ reorderer.csrf_token }}
+			<input id="reordererFormData" name="{{ reorderer.data.label.text }}" type="text" value="{{ reorderer.data.data|default('', True) }}">
+			<input id="reordererFormSubmitReal" name="{{ reorderer.submit.label.text }}" type="submit" value="{{ __('Submit') }}">
+		</form>
+	</div>
+{%- endblock -%}
+{%- set footer_collapse -%}
+	<div id="collapseFilter" class="collapse ui-foreground">
+		<form id="filterForm" name="{{ filter.form_name }}" method="post" action="">
+		 	{{ filter.csrf_token }}
+			<div class="row g-2 pt-2 pb-2">
+				<div class="col-12 col-sm-12 col-md-5">
+					<input autofocus name="{{ filter.title.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Title') }}" aria-label="{{ __('Title') }}" value="{{ filter.title.data|default('', True) }}">
+				</div>
+				<div class="col-12 col-sm-8 col-md-5">
+					<input name="{{ filter.description.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Description') }}" aria-label="{{ __('Description') }}" value="{{ filter.description.data|default('', True) }}">
+				</div>
+				<div class="col-6 col-sm-2 col-md-1">
+					<input default name="{{ filter.submit.label.text }}" class="w-100 btn btn-sm btn-outline-light" type="submit" value="{{ __('Apply') }}">
+				</div>
+				<div class="col-6 col-sm-2 col-md-1">
+					<input name="{{ filter.reset.label.text }}" class="w-100 btn btn-sm btn-outline-light" type="submit" value="{{ __('Reset') }}">
+				</div>
+			</div>
+		</form>
+		<div class="collapse-separator"></div>
+	</div>
+{%- endset -%}
+{%- set action_items -%}
+	<a class="nav-item pl-zero" href="#collapseFilter" data-bs-toggle="collapse"><span class="nav-icon oi oi-magnifying-glass"></span><div class="d-none d-sm-inline">{{ __('Filter') }}</div></a>
+	<div class="nav-separator"></div>
+	<a class="nav-item pl-zero" href="{{ url_for('poll.create') }}"><span class="nav-icon oi oi-plus"></span><div class="d-none d-sm-inline">{{ __('Create') }}</div></a>
+	<label id="reordererFormSubmit" class="nav-item pl-zero" for="{{ reorderer.submit.label.text }}Real" onmouseover="" style="cursor: pointer;" tabindex=0><span class="nav-icon oi oi-loop-circular"></span><div class="d-none d-sm-inline">{{ __('Reorder') }}</div></label>
+	<a class=" nav-item pl-zero" href="{{ url_for('poll.get_history') }}"><span class="nav-icon oi oi-script"></span><div class="d-none d-sm-inline">{{ __('Changes History') }}</div></a>
+{%- endset -%}
+{%- set additional_items -%}
+	{%- if pagination.url_for_prev() -%}
+		<a class="nav-item pl-zero" href="{{ pagination.url_for_prev() }}"><span class="nav-icon oi oi-chevron-left"></span><div class="d-none d-md-inline">{{ __('Previous') }}</div></a>
+		<div class="nav-separator"></div>
+	{%- endif -%}
+	{%- if pagination.page_count > 1 -%}
+		<div class="nav-item">
+			{{ '%s: %d/%d' % (__('Page'), pagination.page_index, pagination.page_count) }}
+			<div class="nav-separator"></div>
+			<small class="d-none d-md-inline-block">{{ '%s: %d' % (__('Total elements'), pagination.entity_count) }}</small>
+		</div>
+	{%- elif pagination.entity_count > 0 -%}
+		<div class="nav-item">{{ '%s: %d' % (__('Total elements'), pagination.entity_count) }}</div>
+	{%- else -%}
+		<div class="nav-item">{{ __('Empty list') }}</div>
+	{%- endif -%}
+	{%- if pagination.url_for_next() -%}
+		<div class="nav-separator"></div>
+		<a class="nav-item pr-zero" href="{{ pagination.url_for_next() }}"><div class="d-none d-md-inline">{{ __('Next') }}</div><span class="nav-icon oi oi-chevron-right"></span></a>
+	{%- endif -%}
+{%- endset -%}
+{%- if not session.mobile -%}
+	{%- block script -%}
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous"></script>
+		<script src="{{ url_for('static', filename='js/reordererForm.js') }}"></script>
+	{%- endblock -%}
+	{%- block body_script -%}
+		<script type="text/javascript">
+			$(function() {
+				initSortable();
+			});
+		</script>
+	{%- endblock -%}
+{%- endif -%}
