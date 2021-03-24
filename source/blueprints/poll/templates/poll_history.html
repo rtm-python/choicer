@@ -13,7 +13,7 @@
 							<div class="text-left">{{ '%s %s' % (user.first_name, user.last_name) }}</div>
 						</div>
 						<div class="d-flex justify-content-between text-muted align-items-center">
-							<div class="text-left">{{ item.event }}</div>
+							<div class="badge bg-secondary fw-normal">{{ item.event }}</div>
 							<small>
 								{{ '%s: ' % __('Last modified') }}
 								<div class="d-inline-block modified-timestamp">{{ '%s+0000' % item.modified_utc.isoformat(timespec='milliseconds') }}</div>
