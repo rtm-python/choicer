@@ -115,7 +115,7 @@ footer {
 }
 
 .collapse-message {
-	background-color: slategrey;
+	background-color: rgba(0, 0, 0, 0.5);
 	border-radius: 0.5rem;
 	border: 1px solid black;
 	overflow: hidden;	
@@ -164,3 +164,25 @@ footer {
 	right: 0;
 	margin: auto;
 }
+
+.catalog-image {
+	width: 100%;
+	padding-top: 100%;
+	border-radius: 0.25rem;
+	overflow: hidden;
+	position: relative;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.catalog-image > img {
+	max-width: 100%;
+	max-height: 100%;
+	position: absolute;
+	display: flex;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+}
+
