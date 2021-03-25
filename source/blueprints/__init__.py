@@ -88,8 +88,7 @@ login_manager.session_protection = 'strong'
 # (prevent circular imports)
 for module_name, url_prefix in [
 			('root', '/'),
-			('poll', '/poll/'),
-			('option', '/option/')
+			('poll', '/poll/')
 		]:
 	module = importlib.import_module('blueprints.%s' % module_name)
 	application.register_blueprint(module.blueprint, url_prefix=url_prefix)

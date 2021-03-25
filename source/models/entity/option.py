@@ -27,11 +27,15 @@ class Option(Entity):
 	)
 	title = Column(database.String, index=True, nullable=True)
 	description = Column(database.String, index=True, nullable=True)
-	image_filename = Column(database.String, index=True, nullable=True)
+	image_id = Column(
+		database.Integer, ForeignKey('file.id'),
+		index=True, nullable=True
+	)
 	order_utc = Column(database.DateTime, index=True, nullable=True)
 
 	def __init__(self, poll_id: int, title: str,
-							 description: str, order_utc: datetime) -> "Option":
+							 description: str, image_id: int,
+							 order_utc: datetime) -> "Option":
 		"""
 		Initiate object and stores Option's data.
 		"""
@@ -39,4 +43,5 @@ class Option(Entity):
 		self.poll_id = poll_id
 		self.title = title
 		self.description = description
+		self.image_id = image_id
 		self.order_utc = order_utc

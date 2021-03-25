@@ -29,7 +29,6 @@ class PollForm(InputWithFilesForm):
 	"""
 	This is a PollForm class to retrieve form data.
 	"""
-	__image_file = None
 	title = StringField('Title')
 	description = StringField('Description')
 

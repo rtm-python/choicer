@@ -28,7 +28,7 @@
 		{%- if list|length -%}
 			{%- for item, file in list -%}
 				<div class="card shadow p-2 entity-uid" uid="{{ item.uid }}">
-					<a href="{{ url_for('poll.update_option', poll_uid=poll_uid, uid=item.uid) }}" class="stretched-link"></a>
+					<a href="{{ url_for('poll.update_option', poll_uid=poll.uid, uid=item.uid) }}" class="stretched-link"></a>
 					<div class="ui-background"></div>
 					<div class="ui-foreground">
 						<div class="row g-2">
@@ -45,7 +45,7 @@
 									</div>
 									<div class="collapse w-100 p-2 text-center collapse-message" id="collapseDelete{{ item.uid }}">
 										<p class="mb-1"><small>{{ __('Do you really want to delete this option?') }}</small></p>
-										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="{{ url_for('poll.delete_option', poll_uid=poll_uid, uid=item.uid) }}">{{ '%s option' % __('Delete') }}</a>
+										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="{{ url_for('poll.delete_option', poll_uid=poll.uid, uid=item.uid) }}">{{ '%s option' % __('Delete') }}</a>
 										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse">{{ __('Cancel') }}</a>
 									</div>
 									<div class="text-left">{{ item.description }}</div>
@@ -101,11 +101,13 @@
 	</div>
 {%- endset -%}
 {%- set action_items -%}
+	<a class="nav-item pl-zero" href="{{ url_for('poll.update', uid=poll.uid) }}"><span class="nav-icon oi oi-arrow-thick-left"></span><div class="d-none d-sm-inline">{{ __('Poll') }}</div></a>
+	<div class="nav-separator"></div>
 	<a class="nav-item pl-zero" href="#collapseFilter" data-bs-toggle="collapse"><span class="nav-icon oi oi-magnifying-glass"></span><div class="d-none d-sm-inline">{{ __('Filter') }}</div></a>
 	<div class="nav-separator"></div>
-	<a class="nav-item pl-zero" href="{{ url_for('option.create') }}"><span class="nav-icon oi oi-plus"></span><div class="d-none d-sm-inline">{{ __('Create') }}</div></a>
+	<a class="nav-item pl-zero" href="{{ url_for('poll.create_option', poll_uid=poll.uid) }}"><span class="nav-icon oi oi-plus"></span><div class="d-none d-sm-inline">{{ __('Create') }}</div></a>
 	<label id="reordererFormSubmit" class="nav-item pl-zero" for="{{ reorderer.submit.label.text }}Real" onmouseover="" style="cursor: pointer;" tabindex=0><span class="nav-icon oi oi-loop-circular"></span><div class="d-none d-sm-inline">{{ __('Reorder') }}</div></label>
-	<a class=" nav-item pl-zero" href="{{ url_for('option.get_history') }}"><span class="nav-icon oi oi-script"></span><div class="d-none d-sm-inline">{{ __('Changes History') }}</div></a>
+	<a class=" nav-item pl-zero" href="{{ url_for('poll.get_option_history', poll_uid=poll.uid) }}"><span class="nav-icon oi oi-script"></span><div class="d-none d-sm-inline">{{ __('Changes History') }}</div></a>
 {%- endset -%}
 {%- set additional_items -%}
 	{%- if pagination.url_for_prev() -%}

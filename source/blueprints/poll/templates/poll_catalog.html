@@ -2,7 +2,7 @@
 {%- set hidden_content = True -%}
 {%- set title = 'Polls' -%}
 {%- block content -%}
-	<div id="sortable" class="row row-cols-1 g-2 m-0">
+	<div class="row row-cols-1 g-2 m-0">
 		{%- if list|length -%}
 			{%- for item, file in list -%}
 				<div class="card shadow p-2 entity-uid" uid="{{ item.uid }}">
@@ -26,7 +26,7 @@
 										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="{{ url_for('poll.delete', uid=item.uid) }}">{{ '%s poll' % __('Delete') }}</a>
 										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse">{{ __('Cancel') }}</a>
 									</div>
-									<div class="text-left">{{ item.description }}</div>
+									<div class="text-left">{{ item.description|default('', True) }}</div>
 									<div class="mt-auto d-flex justify-content-end text-muted align-items-center w-100">
 										<small>
 											{{ '%s: ' % __('Last modified') }}
@@ -47,13 +47,6 @@
 				</div>
 			</div>
 		{%- endif -%}
-	</div>
-	<div class="d-none">
-		<form id="reordererForm" name="{{ reorderer.form_name }}" method="post" action="">
-		 	{{ reorderer.csrf_token }}
-			<input id="reordererFormData" name="{{ reorderer.data.label.text }}" type="text" value="{{ reorderer.data.data|default('', True) }}">
-			<input id="reordererFormSubmitReal" name="{{ reorderer.submit.label.text }}" type="submit" value="{{ __('Submit') }}">
-		</form>
 	</div>
 {%- endblock -%}
 {%- set footer_collapse -%}
@@ -82,7 +75,6 @@
 	<a class="nav-item pl-zero" href="#collapseFilter" data-bs-toggle="collapse"><span class="nav-icon oi oi-magnifying-glass"></span><div class="d-none d-sm-inline">{{ __('Filter') }}</div></a>
 	<div class="nav-separator"></div>
 	<a class="nav-item pl-zero" href="{{ url_for('poll.create') }}"><span class="nav-icon oi oi-plus"></span><div class="d-none d-sm-inline">{{ __('Create') }}</div></a>
-	<label id="reordererFormSubmit" class="nav-item pl-zero" for="{{ reorderer.submit.label.text }}Real" onmouseover="" style="cursor: pointer;" tabindex=0><span class="nav-icon oi oi-loop-circular"></span><div class="d-none d-sm-inline">{{ __('Reorder') }}</div></label>
 	<a class=" nav-item pl-zero" href="{{ url_for('poll.get_history') }}"><span class="nav-icon oi oi-script"></span><div class="d-none d-sm-inline">{{ __('Changes History') }}</div></a>
 {%- endset -%}
 {%- set additional_items -%}

@@ -1,29 +1,46 @@
 {%- extends "layout.html" -%}
 {%- set hidden_content = True -%}
 {%- set title = '%s Option' % action -%}
+{%- block script -%}
+	<script src="{{ url_for('static', filename="js/fileDropzone.js") }}"></script>
+	<script src="{{ url_for('static', filename="js/fileForm.js") }}"></script>
+{%- endblock -%}
 {%- block content -%}
-	<div class="p-2">
-		<div class="card shadow p-2">
+	<div class="row row-cols-1 g-2 p-2 m-0">
+		<div class="card shadow p-2 col-12 offset-sm-2 col-sm-8 offset-md-3 col-md-6 offset-lg-4 col-lg-4">
 			<div class="ui-background"></div>
 			<form id="form" name="{{ form.form_name }}" class="ui-foreground" method="post" action="">
 			 	{{ form.csrf_token }}
 				<div class="row g-2 pt-2 pb-2">
 					<div class="col-12">
-						<small>{{ __('Value') }}</small>
-						<input autofocus name="{{ form.value.label.text }}" class="form-control form-control-sm ui-input{%- if form.value.errors -%}{{ ' is-invalid' }}{%- endif -%}" type="text" placeholder="{{ __('Value') }}" aria-label="{{ __('Value') }}" value="{{ form.value.data|default('', True) }}">
-						{%- for error in form.value.errors -%}
+						<small>{{ __('Title') }}</small>
+						<input autofocus name="{{ form.title.label.text }}" class="form-control form-control-sm ui-input{%- if form.title.errors -%}{{ ' is-invalid' }}{%- endif -%}" type="text" placeholder="{{ __('Title') }}" aria-label="{{ __('Title') }}" value="{{ form.title.data|default('', True) }}">
+						{%- for error in form.title.errors -%}
 							<div class="invalid-feedback">{{ __(error) }}</div>
 						{%- endfor -%}
 					</div>
+					<div class="col-12">
+						<small>{{ __('Description') }}</small>
+						<input name="{{ form.description.label.text }}" class="form-control form-control-sm ui-input{%- if form.description.errors -%}{{ ' is-invalid' }}{%- endif -%}" type="text" placeholder="{{ __('Description') }}" aria-label="{{ __('Description') }}" value="{{ form.description.data|default('', True) }}">
+						{%- for error in form.description.errors -%}
+							<div class="invalid-feedback">{{ __(error) }}</div>
+						{%- endfor -%}
+					</div>
+					<input id="files" name="{{ form.files.label.text }}" class="d-none" type="text" value="{{ form.files.data|default('', True) }}">
 					<input default id="{{ form.submit.label.text }}" name="{{ form.submit.label.text }}" class="d-none" type="submit">
 				</div>
 			</form>
+			<div class="row g-2 pt-2 pb-2 ui-foreground">
+				<div class="col-12">
+					<small>{{ __('Image') }}</small>
+					<div id="fileDropzone" maxFiles="1" acceptedFiles="image/*" defaultMessage="{{ __('Click or drop files here to upload') }}" removeFile="{{ __('Remove file') }}" cancelUpload="{{ __('Cancel upload') }}" class="dropzone form-control form-control-sm ui-input text-muted d-flex align-items-center justify-content-center"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 {%- endblock -%}
 {%- set action_items -%}
+	<a class="nav-item pl-zero" href="{{ url_for('poll.get_option_catalog', poll_uid=poll_uid) }}"><span class="nav-icon oi oi-arrow-thick-left"></span><div class="d-none d-sm-inline">{{ __('Poll Options') }}</div></a>
+	<div class="nav-separator"></div>
 	<label class="nav-item pl-zero" for="{{ form.submit.label.text }}" onmouseover="" style="cursor: pointer;" tabindex=0><span class="nav-icon oi oi-check"></span><div class="d-none d-sm-inline">{{ __('Submit') }}</div></label>
-{%- endset -%}
-{%- set additional_items -%}
-	<a class="nav-item pl-zero" href="{{ url_for('option.get_catalog') }}"><span class="nav-icon oi oi-x"></span><div class="d-none d-sm-inline">{{ __('Cancel') }}</div></a>
 {%- endset -%}

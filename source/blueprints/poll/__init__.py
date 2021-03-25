@@ -50,19 +50,13 @@ def get_catalog():
 		elif filter.reset.data:
 			filter.reset_fields()
 			return redirect(url_for('poll.get_catalog'))
-	reorderer = poll_catalog.ReordererForm()
-	if reorderer.form_valid:
-		if reorderer.submit.data:
-			reorderer.reorder()
-			return redirect(url_for('poll.get_catalog'))
 	pagination, list = poll_catalog.PollList(
 		'poll.get_catalog').read_list(filter)
 	return render_template(
 		'poll_catalog.html',
 		list=list,
 		filter=filter,
-		pagination=pagination,
-		reorderer=reorderer
+		pagination=pagination
 	)
 
 
@@ -193,11 +187,14 @@ def get_option_history(poll_uid: str):
 			return redirect(url_for('poll.get_option_history', poll_uid=poll_uid))
 	pagination, list = option_history.OptionHistoryList(
 		'poll.get_option_history').read_list(poll_uid, filter)
+	poll, file = poll_catalog.PollList.read(poll_uid)
 	return render_template(
 		'option_history.html',
 		list=list,
 		filter=filter,
-		pagination=pagination
+		pagination=pagination,
+		poll=poll,
+		file=file
 	)
 
 
@@ -210,7 +207,7 @@ def create_option(poll_uid: str):
 	form = option_form.OptionForm()
 	if form.form_valid:
 		if form.submit.data:
-			option = form.create()
+			option = form.create(poll_uid)
 			option_history.OptionHistoryList.create(
 				current_user.user.id, option.id, 'create'
 			)
@@ -218,7 +215,8 @@ def create_option(poll_uid: str):
 	return render_template(
 		'option_form.html',
 		form=form,
-		action=blueprints.__('Create')
+		action=blueprints.__('Create'),
+		poll_uid=poll_uid
 	)
 
 
@@ -236,10 +234,13 @@ def update_option(poll_uid: str, uid: str):
 				current_user.user.id, option.id, 'update'
 			)
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
+	poll, file = poll_catalog.PollList.read(poll_uid)
 	return render_template(
 		'option_form.html',
 		form=form,
-		action=blueprints.__('Update')
+		action=blueprints.__('Update'),
+		poll=poll,
+		file=file
 	)
 
 

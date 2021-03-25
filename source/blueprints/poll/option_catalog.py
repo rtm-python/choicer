@@ -81,14 +81,16 @@ class OptionList():
 		poll = PollStore().read(poll_uid)
 		option_store = OptionStore()
 		option_count, option_list = option_store.read_list(
+			poll.id,
 			(self.pagination.page_index - 1) * self.pagination.per_page,
-			poll.id, self.pagination.per_page,
+			self.pagination.per_page,
 			filter.title.data, filter.description.data
 		)
 		if not self.pagination.validate(option_count):
 			option_count, option_list = option_store.read_list(
+				poll.id,
 				(self.pagination.page_index - 1) * self.pagination.per_page,
-				poll.id, self.pagination.per_page,
+				self.pagination.per_page,
 				filter.title.data, filter.description.data
 			)
 		return (self.pagination, option_list)

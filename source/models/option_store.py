@@ -11,6 +11,7 @@ from datetime import datetime
 from models import database
 from models import Store
 from models.entity.option import Option
+from models.entity.file import File
 
 # Additional libraries import
 from sqlalchemy import and_
@@ -27,21 +28,24 @@ class OptionStore(Store):
 		"""
 		super(OptionStore, self).__init__(Option)
 
-	def create(self, poll_id: int, title: str, description: str) -> Option:
+	def create(self, poll_id: int,
+						 title: str, description: str, image_id: int) -> Option:
 		"""
 		Create and return Option.
 		"""
 		return super().create(
-			poll_id=poll_id, title=title,
-			description=description, order_utc=datetime.utcnow()
+			poll_id=poll_id,
+			title=title, description=description, image_id=image_id,
+			order_utc=datetime.utcnow()
 		)
 
-	def update(self, uid: str, title: str, description: str) -> Option:
+	def update(self, uid: str,
+						 title: str, description: str, image_id: int) -> Option:
 		"""
 		Update and return Option.
 		"""
 		return super().update(
-			uid=uid, title=title, description=description
+			uid=uid, title=title, description=description, image_id=image_id
 		)
 
 	def reorder(self, uid: str, order_utc: datetime) -> Option:
@@ -52,13 +56,16 @@ class OptionStore(Store):
 			uid=uid, order_utc=order_utc
 		)
 
-	def read_list(self, offset: int, limit: int,
-							  poll_id: int, title: str, description: str) -> (int, list):
+	def read_list(self, poll_id: int,
+								offset: int, limit: int,
+								title: str, description: str) -> (int, list):
 		"""
 		Return total number and list of Options by arguments.
 		"""
 		query = database.session.query(
-			Option
+			Option, File
+		).join(
+			File, File.id == Option.image_id
 		).filter(
 			True if poll_id is None else \
 				Option.poll_id == poll_id,

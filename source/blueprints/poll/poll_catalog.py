@@ -109,19 +109,3 @@ class PollList():
 		poll = PollStore().read(uid)
 		file = FileStore().get(poll.image_id)
 		return (poll, file)
-
-
-class ReordererForm(ReordererFormAbstract):
-	"""
-	This is a ReordererForm class.
-	"""
-
-	def reorder(self) -> None:
-		"""
-		Reorder elements.
-		"""
-		poll_store = PollStore()
-		order_utc = datetime.utcnow()
-		for uid in json.loads(self.data.data)['uidList']:
-			poll_store.reorder(uid, order_utc)
-			order_utc = order_utc - timedelta(microseconds=1)
