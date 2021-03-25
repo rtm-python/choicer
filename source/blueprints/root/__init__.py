@@ -21,6 +21,7 @@ from flask import redirect
 from flask import request
 from flask import url_for
 from flask_login import logout_user
+from flask_login import current_user
 
 # Initiate Blueprint object
 blueprint = Blueprint(
@@ -42,7 +43,7 @@ def get_home(url_token: str = None):
 	"""
 	if current_user.is_authenticated:
 		return render_template('home.html')
-	form = SignInForm(url_token)
+	form = sign_form.SignInForm(url_token)
 	if form.validate_on_submit():
 		return form.authenticate() or \
 			render_template(

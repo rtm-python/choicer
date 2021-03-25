@@ -49,8 +49,8 @@ class SignInForm(InputForm):
 		"""
 		Authenticate user by form data and return True on success.
 		"""
-		if form.url_token.data is not None:
-			verify_data = IdenticaPlugin.verify_url(form.url_token.data)
+		if self.url_token.data is not None:
+			verify_data = IdenticaPlugin.verify_url(self.url_token.data)
 			if verify_data is not None and verify_data.get('from'):
 				user = UserStore().read_or_create_user(
 					verify_data['from']['id'],
@@ -62,16 +62,16 @@ class SignInForm(InputForm):
 				logging.debug('Sign in as user %s (%s)' % \
 					(' '.join([user.first_name, user.last_name]), user.from_id))
 				blueprints.set_value(
-					'mobile', form.has_touch_screen.data == 'true')
+					'mobile', self.has_touch_screen.data == 'true')
 			return redirect(url_for('root.get_home'))
-		elif form.pin.data is not None:
-			if form.password.data is None:
-				password = IdenticaPlugin.get_password(form.pin.data)
+		elif self.pin.data is not None:
+			if self.password.data is None:
+				password = IdenticaPlugin.get_password(self.pin.data)
 				if password is None:
 					return redirect(url_for('root.get_home'))
-				form.password.data = password
+				self.password.data = password
 			else:
-				verify_data = IdenticaPlugin.verify_pin(form.pin.data)
+				verify_data = IdenticaPlugin.verify_pin(self.pin.data)
 				if verify_data is None:
 					return { 'redirect': url_for('root.get_home') }
 				elif verify_data.get('from'):
@@ -85,7 +85,7 @@ class SignInForm(InputForm):
 					logging.debug('Sign in as user %s (%s)' % \
 						(' '.join([user.first_name, user.last_name]), user.from_id))
 					blueprints.set_value(
-						'mobile', form.has_touch_screen.data == 'true')
+						'mobile', self.has_touch_screen.data == 'true')
 					return { 'redirect': url_for('root.get_home') }
 				return { 'wait': True }
 		return # Return None to render template

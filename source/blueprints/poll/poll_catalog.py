@@ -16,7 +16,9 @@ from blueprints.__form__ import InputForm
 from blueprints.__form__ import ReordererFormAbstract
 from blueprints.__list__ import Pagination
 from models.poll_store import PollStore
+from models.file_store import FileStore
 from models.entity.poll import Poll
+from models.entity.file import File
 
 # Additional libraries import
 from flask import url_for
@@ -95,9 +97,18 @@ class PollList():
 	@staticmethod
 	def delete(uid: str) -> Poll:
 		"""
-		Delete poll entity by uid.
+		Delete and return poll entity by uid.
 		"""
 		return PollStore().delete(uid)
+
+	@staticmethod
+	def read(uid: str) -> (Poll, File):
+		"""
+		Return poll and linked file entity by uid.
+		"""
+		poll = PollStore().read(uid)
+		file = FileStore().get(poll.image_id)
+		return (poll, file)
 
 
 class ReordererForm(ReordererFormAbstract):

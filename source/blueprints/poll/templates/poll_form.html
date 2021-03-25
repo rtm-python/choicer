@@ -45,5 +45,7 @@
 	<label class="nav-item pl-zero" for="{{ form.submit.label.text }}" onmouseover="" style="cursor: pointer;" tabindex=0><span class="nav-icon oi oi-check"></span><div class="d-none d-sm-inline">{{ __('Submit') }}</div></label>
 {%- endset -%}
 {%- set additional_items -%}
-	<a class="nav-item pl-zero" href="{{ url_for('option.get_catalog') }}"><span class="nav-icon oi oi-project"></span><div class="d-none d-sm-inline">{{ __('Poll Options') }}</div></a>
+	{%- if poll_uid -%}
+		<a class="nav-item pl-zero" href="{{ url_for('poll.get_option_catalog', poll_uid=poll_uid) }}"><span class="nav-icon oi oi-project"></span><div class="d-none d-sm-inline">{{ __('Poll Options') }}</div></a>
+	{%- endif -%}
 {%- endset -%}

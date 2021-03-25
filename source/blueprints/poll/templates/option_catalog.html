@@ -1,28 +1,62 @@
 {%- extends "layout.html" -%}
 {%- set hidden_content = True -%}
-{%- set title = 'Options' -%}
+{%- set title = 'Poll Options' -%}
 {%- block content -%}
+	<div class="row row-cols-1 g-2 m-0">
+		<div class="card shadow p-2 entity-uid offset-1 col-10 offset-sm-2 col-sm-8 offset-md-3 col-md-6 offset-lg-4 col-lg-4">
+			<div class="ui-background"></div>
+			<div class="ui-foreground">
+				<div class="row g-2">
+					<div class="col-5 col-sm-5 col-md-4 col-lg-3">
+						<div class="catalog-image">
+							<img src="{{ url_for('root.download', uid=file.uid) }}"/>
+						</div>
+					</div>
+					<div class="col-7 col-sm-7 col-md-8 col-lg-9">
+						<div class="d-flex align-items-start flex-column h-100 w-100">
+							<div class="d-flex justify-content-between align-items-center w-100">
+								<h4 class="text-left">{{ poll.title }}</h4>
+							</div>
+							<div class="text-left">{{ poll.description }}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="sortable" class="row row-cols-1 g-2 m-0">
 		{%- if list|length -%}
-			{%- for item in list -%}
+			{%- for item, file in list -%}
 				<div class="card shadow p-2 entity-uid" uid="{{ item.uid }}">
-					<a href="{{ url_for('option.update', uid=item.uid) }}" class="stretched-link"></a>
+					<a href="{{ url_for('poll.update_option', poll_uid=poll_uid, uid=item.uid) }}" class="stretched-link"></a>
 					<div class="ui-background"></div>
 					<div class="ui-foreground">
-						<div class="d-flex justify-content-between">
-							<div class="text-left">{{ item.value }}</div>
-							<a class="nav-item pl-zero btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse"><span class="nav-icon oi oi-x"></span><div class="d-none d-sm-inline">{{ __('Delete') }}</div></a>
-						</div>
-						<div class="collapse p-2 text-center collapse-message" id="collapseDelete{{ item.uid }}">
-							<p class="mb-1"><small>{{ __('Do you really want to delete this option?') }}</small></p>
-							<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="{{ url_for('option.delete', uid=item.uid) }}">{{ '%s option' % __('Delete') }}</a>
-							<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse">{{ __('Cancel') }}</a>
-						</div>
-						<div class="d-flex justify-content-end text-muted align-items-center">
-							<small>
-								{{ '%s: ' % __('Last modified') }}
-								<div class="d-inline-block modified-timestamp">{{ '%s+0000' % item.modified_utc.isoformat(timespec='milliseconds') }}</div>
-							</small>
+						<div class="row g-2">
+							<div class="col-12 col-sm-4 col-md-3 col-lg-2">
+								<div class="catalog-image">
+									<img src="{{ url_for('root.download', uid=file.uid) }}"/>
+								</div>
+							</div>
+							<div class="col-12 col-sm-8 col-md-9 col-lg-10">
+								<div class="d-flex align-items-start flex-column h-100 w-100">
+									<div class="d-flex justify-content-between align-items-center w-100">
+										<h4 class="text-left">{{ item.title }}</h4>
+										<a class="nav-item pl-zero btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse"><span class="nav-icon oi oi-x"></span><div class="d-none d-sm-inline">{{ __('Delete') }}</div></a>
+									</div>
+									<div class="collapse w-100 p-2 text-center collapse-message" id="collapseDelete{{ item.uid }}">
+										<p class="mb-1"><small>{{ __('Do you really want to delete this option?') }}</small></p>
+										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="{{ url_for('poll.delete_option', poll_uid=poll_uid, uid=item.uid) }}">{{ '%s option' % __('Delete') }}</a>
+										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse">{{ __('Cancel') }}</a>
+									</div>
+									<div class="text-left">{{ item.description }}</div>
+									<div class="mt-auto d-flex justify-content-end text-muted align-items-center w-100">
+										<small>
+											{{ '%s: ' % __('Last modified') }}
+											<div class="d-inline-block modified-timestamp">{{ '%s+0000' % item.modified_utc.isoformat(timespec='milliseconds') }}</div>
+										</small>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -49,8 +83,11 @@
 		<form id="filterForm" name="{{ filter.form_name }}" method="post" action="">
 		 	{{ filter.csrf_token }}
 			<div class="row g-2 pt-2 pb-2">
-				<div class="col-12 col-sm-8 col-md-10">
-					<input autofocus name="{{ filter.value.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Value') }}" aria-label="{{ __('Value') }}" value="{{ filter.value.data|default('', True) }}">
+				<div class="col-12 col-sm-12 col-md-5">
+					<input autofocus name="{{ filter.title.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Title') }}" aria-label="{{ __('Title') }}" value="{{ filter.title.data|default('', True) }}">
+				</div>
+				<div class="col-12 col-sm-8 col-md-5">
+					<input name="{{ filter.description.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Description') }}" aria-label="{{ __('Description') }}" value="{{ filter.description.data|default('', True) }}">
 				</div>
 				<div class="col-6 col-sm-2 col-md-1">
 					<input default name="{{ filter.submit.label.text }}" class="w-100 btn btn-sm btn-outline-light" type="submit" value="{{ __('Apply') }}">

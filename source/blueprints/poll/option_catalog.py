@@ -15,6 +15,7 @@ import blueprints
 from blueprints.__form__ import InputForm
 from blueprints.__form__ import ReordererFormAbstract
 from blueprints.__list__ import Pagination
+from models.poll_store import PollStore
 from models.option_store import OptionStore
 from models.entity.option import Option
 
@@ -33,7 +34,8 @@ class OptionFilter(InputForm):
 	"""
 	This is a OptionFilter class to retrieve form data.
 	"""
-	value = StringField('Value')
+	title = StringField('Title')
+	description = StringField('Description')
 	reset = SubmitField('Reset')
 
 	def __init__(self) -> "OptionFilter":
@@ -42,9 +44,11 @@ class OptionFilter(InputForm):
 		"""
 		super(OptionFilter, self).__init__('optionFilter')
 		if request.method == 'GET':
-			self.value.data = blueprints.get_value(self.value.label.text, str, None)
+			self.title.data = blueprints.get_value(self.title.label.text, str, None)
+			self.description.data = blueprints.get_value(self.description.label.text, str, None)
 		elif request.method == 'POST':
-			blueprints.set_value(self.value.label.text, self.value.data)
+			blueprints.set_value(self.title.label.text, self.title.data)
+			blueprints.set_value(self.description.label.text, self.description.data)
 			self.form_valid = True
 
 	def reset_fields(self) -> None:
@@ -69,19 +73,23 @@ class OptionList():
 		"""
 		self.pagination = Pagination('optionList', endpoint)
 
-	def read_list(self, filter: OptionFilter) -> (Pagination, [Option]):
+	def read_list(self, poll_uid: str,
+								filter: OptionFilter) -> (Pagination, [Option]):
 		"""
 		Return pagination and list of option entities filtered by filter.
 		"""
+		poll = PollStore().read(poll_uid)
 		option_store = OptionStore()
 		option_count, option_list = option_store.read_list(
 			(self.pagination.page_index - 1) * self.pagination.per_page,
-			self.pagination.per_page, filter.value.data
+			poll.id, self.pagination.per_page,
+			filter.title.data, filter.description.data
 		)
 		if not self.pagination.validate(option_count):
 			option_count, option_list = option_store.read_list(
 				(self.pagination.page_index - 1) * self.pagination.per_page,
-				self.pagination.per_page, filter.value.data
+				poll.id, self.pagination.per_page,
+				filter.title.data, filter.description.data
 			)
 		return (self.pagination, option_list)
 
