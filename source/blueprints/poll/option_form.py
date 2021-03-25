@@ -40,12 +40,12 @@ class OptionForm(InputWithFilesForm):
 		super(OptionForm, self).__init__('optionForm')
 		if request.method == 'GET':
 			if uid is not None:
-				poll = PollStore().read(uid)
-				if poll is None:
+				option = OptionStore().read(uid)
+				if option is None:
 					abort(404)
-				self.title.data = poll.title
-				self.description.data = poll.description
-				file = FileStore().get(poll.image_id)
+				self.title.data = option.title
+				self.description.data = option.description
+				file = FileStore().get(option.image_id)
 				if file is not None:
 					self.init_files([file])
 		elif request.method == 'POST':
@@ -70,8 +70,7 @@ class OptionForm(InputWithFilesForm):
 		Update option entity.
 		"""
 		file = self.save_files(1)[0]
-		return PollStore().update(
+		return OptionStore().update(
 			uid=uid, title=self.title.data, description=self.description.data,
 			image_id=file.id
 		)
-

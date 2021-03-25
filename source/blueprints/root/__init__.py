@@ -34,7 +34,7 @@ blueprint = Blueprint(
 from blueprints.root import sign_form
 
 
-@blueprint.route('/sign/in/', methods=('GET','POST'))
+@blueprint.route('/sign-in/', methods=('GET','POST'))
 @blueprint.route('/identica/<url_token>/', methods=('GET','POST'))
 @blueprint.route('/', methods=('GET','POST'))
 def get_home(url_token: str = None):
@@ -56,7 +56,7 @@ def get_home(url_token: str = None):
 	)
 
 
-@blueprint.route('/sign/out/', methods=('GET',))
+@blueprint.route('/sign-out/', methods=('GET',))
 #@permission_required
 def sign_out():
 	"""
@@ -82,6 +82,20 @@ def download(uid: str):
 	Return file by link.
 	"""
 	return FileForm.download(uid)
+
+
+@blueprint.route('/site-map/', methods=('GET',))
+def site_map():
+	links = []
+	for rule in blueprints.application.url_map.iter_rules():
+		links.append(
+			(
+				rule.rule,
+				rule.endpoint,
+				str(rule.arguments) if len(rule.arguments) > 0 else None
+			)
+		)
+	return {'links': links}, 200
 
 
 @blueprints.application.errorhandler(400) # HTTP_400_BAD_REQUEST

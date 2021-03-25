@@ -220,7 +220,7 @@ def create_option(poll_uid: str):
 	)
 
 
-@blueprint.route('/<poll_uid>/update/<uid>/', methods=('GET', 'POST'))
+@blueprint.route('/<poll_uid>/option/update/<uid>/', methods=('GET', 'POST'))
 #@permission_required
 def update_option(poll_uid: str, uid: str):
 	"""
@@ -234,17 +234,15 @@ def update_option(poll_uid: str, uid: str):
 				current_user.user.id, option.id, 'update'
 			)
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
-	poll, file = poll_catalog.PollList.read(poll_uid)
 	return render_template(
 		'option_form.html',
 		form=form,
 		action=blueprints.__('Update'),
-		poll=poll,
-		file=file
+		poll_uid=poll_uid
 	)
 
 
-@blueprint.route('/<poll_uid>/delete/<uid>/', methods=('GET',))
+@blueprint.route('/<poll_uid>/option/delete/<uid>/', methods=('GET',))
 #@permission_required
 def delete_option(poll_uid: str, uid: str):
 	"""
