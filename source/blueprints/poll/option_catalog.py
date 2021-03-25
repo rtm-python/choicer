@@ -67,11 +67,12 @@ class OptionList():
 	"""
 	pagination = None
 
-	def __init__(self, endpoint: str) -> "OptionList":
+	def __init__(self, endpoint: str, poll_uid: str) -> "OptionList":
 		"""
 		Initiate object.
 		"""
-		self.pagination = Pagination('optionList', endpoint)
+		self.pagination = Pagination(
+			'optionList', endpoint, poll_uid=poll_uid)
 
 	def read_list(self, poll_uid: str,
 								filter: OptionFilter) -> (Pagination, [Option]):

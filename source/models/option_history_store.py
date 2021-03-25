@@ -43,8 +43,9 @@ class OptionHistoryStore(Store):
 			uid=uid, user_id=user_id, option_id=option_id, event=event
 		)
 
-	def read_list(self, offset: int, limit: int,
-							  username: str, value: str, event: str) -> (int, list):
+	def read_list(self, poll_id: int,
+								offset: int, limit: int,
+							  username: str, title: str, event: str) -> (int, list):
 		"""
 		Return total number and list of OptionHistories by arguments.
 		"""
@@ -60,8 +61,10 @@ class OptionHistoryStore(Store):
 					User.first_name.contains(username),
 					User.last_name.contains(username)
 				),
-			True if value is None else \
-				Option.value.contains(value),
+			True if poll_id is None else \
+				Option.poll_id == poll_id,
+			True if title is None else \
+				Option.title.contains(title),
 			True if event is None else \
 				OptionHistory.event.contains(event),
 		).order_by(

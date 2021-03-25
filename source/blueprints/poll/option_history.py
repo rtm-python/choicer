@@ -14,6 +14,7 @@ from datetime import timedelta
 import blueprints
 from blueprints.__form__ import InputForm
 from blueprints.__list__ import Pagination
+from models.poll_store import PollStore
 from models.option_history_store import OptionHistoryStore
 from models.entity.option_history import OptionHistory
 
@@ -33,7 +34,7 @@ class OptionHistoryFilter(InputForm):
 	This is a OptionHistoryFilter class to retrieve form data.
 	"""
 	username = StringField('Username')
-	value = StringField('Value')
+	title = StringField('Title')
 	event = StringField('Event')
 	reset = SubmitField('Reset')
 
@@ -44,11 +45,11 @@ class OptionHistoryFilter(InputForm):
 		super(OptionHistoryFilter, self).__init__('optionHistoryFilter')
 		if request.method == 'GET':
 			self.username.data = blueprints.get_value(self.username.label.text, str, None)
-			self.value.data = blueprints.get_value(self.value.label.text, str, None)
+			self.title.data = blueprints.get_value(self.title.label.text, str, None)
 			self.event.data = blueprints.get_value(self.event.label.text, str, None)
 		elif request.method == 'POST':
 			blueprints.set_value(self.username.label.text, self.username.data)
-			blueprints.set_value(self.value.label.text, self.value.data)
+			blueprints.set_value(self.title.label.text, self.title.data)
 			blueprints.set_value(self.event.label.text, self.event.data)
 			self.form_valid = True
 
@@ -69,30 +70,34 @@ class OptionHistoryList():
 	"""
 	pagination = None
 
-	def __init__(self, endpoint: str) -> "OptionHistoryList":
+	def __init__(self, endpoint: str, poll_uid: str) -> "OptionHistoryList":
 		"""
 		Initiate object.
 		"""
-		self.pagination = Pagination('optionHistoryList', endpoint)
+		self.pagination = Pagination(
+			'optionHistoryList', endpoint, poll_uid=poll_uid)
 
-	def read_list(self, filter: OptionHistoryFilter
+	def read_list(self, poll_uid: str, filter: OptionHistoryFilter
 							 ) -> (Pagination, [OptionHistory]):
 		"""
 		Return pagination and list of option entities filtered by filter.
 		"""
+		poll = PollStore().read(poll_uid)
 		option_history_store = OptionHistoryStore()
 		option_history_count, option_history_list = \
 			option_history_store.read_list(
+				poll.id,
 				(self.pagination.page_index - 1) * self.pagination.per_page,
 				self.pagination.per_page, filter.username.data,
-				filter.value.data, filter.event.data
+				filter.title.data, filter.event.data
 			)
 		if not self.pagination.validate(option_history_count):
 			option_history_count, option_history_list = \
 				option_history_store.read_list(
+					poll.id,
 					(self.pagination.page_index - 1) * self.pagination.per_page,
 					self.pagination.per_page, filter.username.data,
-					filter.value.data, filter.event.data
+					filter.title.data, filter.event.data
 				)
 		return (self.pagination, option_history_list)
 

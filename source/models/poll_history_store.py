@@ -44,7 +44,7 @@ class PollHistoryStore(Store):
 		)
 
 	def read_list(self, offset: int, limit: int,
-							  username: str, value: str, event: str) -> (int, list):
+							  username: str, title: str, event: str) -> (int, list):
 		"""
 		Return total number and list of PollHistories by arguments.
 		"""
@@ -60,8 +60,8 @@ class PollHistoryStore(Store):
 					User.first_name.contains(username),
 					User.last_name.contains(username)
 				),
-			True if value is None else \
-				Poll.value.contains(value),
+			True if title is None else \
+				Poll.title.contains(title),
 			True if event is None else \
 				PollHistory.event.contains(event),
 		).order_by(

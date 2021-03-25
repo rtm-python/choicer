@@ -9,11 +9,11 @@
 					<div class="ui-background"></div>
 					<div class="ui-foreground">
 						<div class="d-flex justify-content-between">
-							<div class="text-left">{{ option.value }}</div>
+							<h4 class="text-left">{{ option.title }}</h4>
 							<div class="text-left">{{ '%s %s' % (user.first_name, user.last_name) }}</div>
 						</div>
 						<div class="d-flex justify-content-between text-muted align-items-center">
-							<div class="text-left">{{ item.event }}</div>
+							<div class="badge bg-secondary fw-normal">{{ item.event }}</div>
 							<small>
 								{{ '%s: ' % __('Last modified') }}
 								<div class="d-inline-block modified-timestamp">{{ '%s+0000' % item.modified_utc.isoformat(timespec='milliseconds') }}</div>
@@ -41,7 +41,7 @@
 					<input autofocus name="{{ filter.username.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Username') }}" aria-label="{{ __('Username') }}" value="{{ filter.username.data|default('', True) }}">
 				</div>
 				<div class="col-12 col-md-6">
-					<input name="{{ filter.value.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Value') }}" aria-label="{{ __('Value') }}" value="{{ filter.value.data|default('', True) }}">
+					<input name="{{ filter.title.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Title') }}" aria-label="{{ __('Title') }}" value="{{ filter.title.data|default('', True) }}">
 				</div>
 				<div class="col-12 col-sm-8 col-md-10">
 					<input name="{{ filter.event.label.text }}" class="form-control form-control-sm ui-input" type="text" placeholder="{{ __('Event') }}" aria-label="{{ __('Event') }}" value="{{ filter.event.data|default('', True) }}">
@@ -58,7 +58,7 @@
 	</div>
 {%- endset -%}
 {%- set action_items -%}
-	<a class="nav-item pl-zero" href="{{ url_for('option.get_catalog') }}"><span class="nav-icon oi oi-arrow-thick-left"></span><div class="d-none d-sm-inline">{{ __('Catalog') }}</div></a>
+	<a class="nav-item pl-zero" href="{{ url_for('poll.get_option_catalog', poll_uid=poll_uid) }}"><span class="nav-icon oi oi-arrow-thick-left"></span><div class="d-none d-sm-inline">{{ __('Poll Options') }}</div></a>
 	<div class="nav-separator"></div>
 	<a class="nav-item pl-zero" href="#collapseFilter" data-bs-toggle="collapse"><span class="nav-icon oi oi-magnifying-glass"></span><div class="d-none d-sm-inline">{{ __('Filter') }}</div></a>
 {%- endset -%}

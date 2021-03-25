@@ -25,12 +25,13 @@ class Pagination():
 	name_page_index = None
 	name_per_page = None
 	endpoint = None
+	kwargs = None
 	page_index = None
 	per_page= None
 	page_count = None
 	entity_count = None
 
-	def __init__(self, name: str, endpoint: str) -> "Pagination":
+	def __init__(self, name: str, endpoint: str, **kwargs) -> "Pagination":
 		"""
 		Initiate pagination object with values.
 		"""
@@ -44,6 +45,7 @@ class Pagination():
 		self.per_page = blueprints.get_value(
 			self.name_per_page, int, DEFAULT_PER_PAGE)
 		self.endpoint = endpoint
+		self.kwargs = kwargs
 
 	def validate(self, entity_count: int) -> "Pagination":
 		"""
@@ -90,7 +92,8 @@ class Pagination():
 			self.endpoint,
 			**{
 				self.name_page_index: page_index,
-				self.name_per_page: per_page
+				self.name_per_page: per_page,
+				**self.kwargs
 			}
 		)
 

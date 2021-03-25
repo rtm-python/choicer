@@ -33,7 +33,7 @@ class PollHistoryFilter(InputForm):
 	This is a PollHistoryFilter class to retrieve form data.
 	"""
 	username = StringField('Username')
-	value = StringField('Value')
+	title = StringField('Title')
 	event = StringField('Event')
 	reset = SubmitField('Reset')
 
@@ -44,11 +44,11 @@ class PollHistoryFilter(InputForm):
 		super(PollHistoryFilter, self).__init__('pollHistoryFilter')
 		if request.method == 'GET':
 			self.username.data = blueprints.get_value(self.username.label.text, str, None)
-			self.value.data = blueprints.get_value(self.value.label.text, str, None)
+			self.title.data = blueprints.get_value(self.title.label.text, str, None)
 			self.event.data = blueprints.get_value(self.event.label.text, str, None)
 		elif request.method == 'POST':
 			blueprints.set_value(self.username.label.text, self.username.data)
-			blueprints.set_value(self.value.label.text, self.value.data)
+			blueprints.set_value(self.title.label.text, self.title.data)
 			blueprints.set_value(self.event.label.text, self.event.data)
 			self.form_valid = True
 
@@ -85,14 +85,14 @@ class PollHistoryList():
 			poll_history_store.read_list(
 				(self.pagination.page_index - 1) * self.pagination.per_page,
 				self.pagination.per_page, filter.username.data,
-				filter.value.data, filter.event.data
+				filter.title.data, filter.event.data
 			)
 		if not self.pagination.validate(poll_history_count):
 			poll_history_count, poll_history_list = \
 				poll_history_store.read_list(
 					(self.pagination.page_index - 1) * self.pagination.per_page,
 					self.pagination.per_page, filter.username.data,
-					filter.value.data, filter.event.data
+					filter.title.data, filter.event.data
 				)
 		return (self.pagination, poll_history_list)
 

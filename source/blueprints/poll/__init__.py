@@ -159,7 +159,7 @@ def get_option_catalog(poll_uid: str):
 			reorderer.reorder()
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
 	pagination, list = option_catalog.OptionList(
-		'poll.get_option_catalog').read_list(poll_uid, filter)
+		'poll.get_option_catalog', poll_uid).read_list(poll_uid, filter)
 	poll, file = poll_catalog.PollList.read(poll_uid)
 	return render_template(
 		'option_catalog.html',
@@ -186,15 +186,13 @@ def get_option_history(poll_uid: str):
 			filter.reset_fields()
 			return redirect(url_for('poll.get_option_history', poll_uid=poll_uid))
 	pagination, list = option_history.OptionHistoryList(
-		'poll.get_option_history').read_list(poll_uid, filter)
-	poll, file = poll_catalog.PollList.read(poll_uid)
+		'poll.get_option_history', poll_uid).read_list(poll_uid, filter)
 	return render_template(
 		'option_history.html',
 		list=list,
 		filter=filter,
 		pagination=pagination,
-		poll=poll,
-		file=file
+		poll_uid=poll_uid
 	)
 
 
