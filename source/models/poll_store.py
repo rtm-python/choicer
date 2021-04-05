@@ -45,8 +45,25 @@ class PollStore(Store):
 			uid=uid, title=title, description=description, image_id=image_id
 		)
 
+	def set_data_uid(self, uid: str, data_uid: str) -> Poll:
+		"""
+		Set data uid and return Poll.
+		"""
+		return super().update(
+			uid=uid, data_uid=data_uid
+		)
+
+	def set_vote_data(self, uid: str, vote_data: str) -> Poll:
+		"""
+		Set vote_data and return Poll.
+		"""
+		return super().update(
+			uid=uid, vote_data=vote_data
+		)
+
 	def read_list(self, offset: int, limit: int,
-							  title: str, description: str) -> (int, list):
+							  title: str, description: str,
+								data_uid: str = None) -> (int, list):
 		"""
 		Return total number and list of Polls by arguments.
 		"""
@@ -59,6 +76,8 @@ class PollStore(Store):
 				Poll.title.contains(title),
 			True if description is None else \
 				Poll.description.contains(description),
+			True if data_uid is None else \
+				Poll.data_uid == data_uid,
 			Poll.deleted_utc == None
 		).order_by(
 			Poll.modified_utc.desc()

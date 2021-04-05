@@ -27,8 +27,8 @@ class Poll(Entity):
 		database.Integer, ForeignKey('file.id'),
 		index=True, nullable=False
 	)
-	result = Column(database.String, index=True, nullable=True)
-	status = Column(database.Boolean, index=True, nullable=True)
+	data_uid = Column(database.String, index=True, nullable=True)
+	vote_data = Column(database.String, index=True, nullable=True)
 
 	def __init__(self, title: str, description: str, image_id: int) -> "Poll":
 		"""

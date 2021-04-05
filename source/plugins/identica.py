@@ -96,7 +96,7 @@ class Plugin():
 
 	def __init__(self, domain_url: str = None) -> "Plugin":
 		"""
-		Inititate Plugin object with debug_mode and
+		Inititate Plugin object with domain_url and
 		configuration data.
 		"""
 		self.config_filename = os.path.join(IDENTICA_PATH, IDENTICA_JSON)

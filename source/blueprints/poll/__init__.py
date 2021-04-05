@@ -122,7 +122,8 @@ def update(uid: str):
 		'poll_form.html',
 		form=form,
 		action=blueprints.__('Update'),
-		poll_uid=uid
+		poll_uid=uid,
+		poll_active=False
 	)
 
 
@@ -135,6 +136,32 @@ def delete(uid: str):
 	poll = poll_catalog.PollList.delete(uid)
 	poll_history.PollHistoryList.create(
 		current_user.user.id, poll.id, 'delete'
+	)
+	return redirect(url_for('poll.get_catalog'))
+
+
+@blueprint.route('/start/<uid>/', methods=('GET',))
+#@permission_required
+def start(uid: str):
+	"""
+	Start poll by uid.
+	"""
+	poll = poll_catalog.PollList.start(uid)
+	poll_history.PollHistoryList.create(
+		current_user.user.id, poll.id, 'start'
+	)
+	return redirect(url_for('poll.get_catalog'))
+
+
+@blueprint.route('/stop/<uid>/', methods=('GET',))
+#@permission_required
+def stop(uid: str):
+	"""
+	Stop poll by uid.
+	"""
+	poll = poll_catalog.PollList.stop(uid)
+	poll_history.PollHistoryList.create(
+		current_user.user.id, poll.id, 'stop'
 	)
 	return redirect(url_for('poll.get_catalog'))
 
@@ -157,6 +184,7 @@ def get_option_catalog(poll_uid: str):
 	if reorderer.form_valid:
 		if reorderer.submit.data:
 			reorderer.reorder()
+			poll_catalog.PollStore().set_vote_data(poll_uid, None)
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
 	pagination, list = option_catalog.OptionList(
 		'poll.get_option_catalog', poll_uid).read_list(poll_uid, filter)
@@ -209,6 +237,7 @@ def create_option(poll_uid: str):
 			option_history.OptionHistoryList.create(
 				current_user.user.id, option.id, 'create'
 			)
+			poll_catalog.PollStore().set_vote_data(poll_uid, None)
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
 	return render_template(
 		'option_form.html',
@@ -231,6 +260,7 @@ def update_option(poll_uid: str, uid: str):
 			option_history.OptionHistoryList.create(
 				current_user.user.id, option.id, 'update'
 			)
+			poll_catalog.PollStore().set_vote_data(poll_uid, None)
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
 	return render_template(
 		'option_form.html',
@@ -250,4 +280,5 @@ def delete_option(poll_uid: str, uid: str):
 	option_history.OptionHistoryList.create(
 		current_user.user.id, option.id, 'delete'
 	)
+	poll_catalog.PollStore().set_vote_data(poll_uid, None)
 	return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))

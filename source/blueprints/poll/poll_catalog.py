@@ -6,6 +6,7 @@ Service module to handle Poll catalog.
 
 # Standard libraries import
 import logging
+import os
 import json
 from datetime import datetime
 from datetime import timedelta
@@ -15,6 +16,8 @@ import blueprints
 from blueprints.__form__ import InputForm
 from blueprints.__form__ import ReordererFormAbstract
 from blueprints.__list__ import Pagination
+from plugins.choicer import Plugin as ChoicerPlugin
+from blueprints.poll.option_catalog import OptionList
 from models.poll_store import PollStore
 from models.file_store import FileStore
 from models.entity.poll import Poll
@@ -109,3 +112,51 @@ class PollList():
 		poll = PollStore().read(uid)
 		file = FileStore().get(poll.image_id)
 		return (poll, file)
+
+	@staticmethod
+	def start(uid: str) -> Poll:
+		"""
+		Start poll by uid.
+		"""
+		poll, file = PollList.read(uid)
+		poll_data = {
+			'title': poll.title,
+			'description': poll.description,
+			'image': os.path.join(file.path, file.name),
+			'options': []
+		}
+		vote_data = poll.vote_data
+		for option, file in OptionList.options(uid):
+			poll_data['options'] += [
+				{
+					'title': option.title,
+					'description': option.description,
+					'image': os.path.join(file.path, file.name)
+				}
+			]
+		free_uid = ChoicerPlugin.free_poll()
+		while free_uid is not None:
+			poll_count, poll_list =	PollStore().read_list(
+				None, None, None, None, free_uid)
+			if poll_count > 0:
+				stop(poll_list[0][0].uid)
+			free_uid = ChoicerPlugin.free_poll()
+		data_uid = ChoicerPlugin.play_poll(poll_data, vote_data)
+		return PollStore().set_data_uid(uid=uid, data_uid=data_uid)
+
+	@staticmethod
+	def stop(uid: str) -> Poll:
+		"""
+		Stop poll by uid.
+		"""
+		poll = PollStore().read(uid)
+		if poll.data_uid is not None:
+			poll_data = ChoicerPlugin.stop_poll(poll.data_uid)
+			vote_data = {
+				'results': poll_data['results'],
+				'voters': poll_data['voters']
+			}
+			poll = PollStore().set_data_uid(uid=uid, data_uid=None)
+			poll = PollStore().set_vote_data(
+				uid=uid, vote_data=json.dumps(vote_data))
+		return poll

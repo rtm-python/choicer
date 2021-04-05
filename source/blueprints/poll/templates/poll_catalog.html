@@ -19,7 +19,14 @@
 								<div class="d-flex align-items-start flex-column h-100 w-100">
 									<div class="d-flex justify-content-between align-items-center w-100">
 										<h4 class="text-left">{{ item.title }}</h4>
-										<a class="nav-item pl-zero btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse"><span class="nav-icon oi oi-x"></span><div class="d-none d-sm-inline">{{ __('Delete') }}</div></a>
+										<div>
+											{%- if item.data_uid -%}
+												<a class="nav-item pl-zero btn-in-stretched-link" href="{{ url_for('poll.stop', uid=item.uid) }}"><span class="nav-icon oi oi-media-pause"></span><div class="d-none d-sm-inline">{{ __('Stop') }}</div></a>
+											{%- else -%}
+												<a class="nav-item pl-zero btn-in-stretched-link" href="{{ url_for('poll.start', uid=item.uid) }}"><span class="nav-icon oi oi-media-play"></span><div class="d-none d-sm-inline">{{ __('Start') }}</div></a>
+											{%- endif -%}
+											<a class="nav-item pl-zero btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse"><span class="nav-icon oi oi-x"></span><div class="d-none d-sm-inline">{{ __('Delete') }}</div></a>
+										</div>
 									</div>
 									<div class="collapse w-100 p-2 text-center collapse-message" id="collapseDelete{{ item.uid }}">
 										<p class="mb-1"><small>{{ __('Do you really want to delete this poll?') }}</small></p>
@@ -27,6 +34,7 @@
 										<a class="btn btn-sm btn-outline-light btn-in-stretched-link" href="#collapseDelete{{ item.uid }}" data-bs-toggle="collapse">{{ __('Cancel') }}</a>
 									</div>
 									<div class="text-left">{{ item.description|default('', True) }}</div>
+									<div>{{ item.vote_data|default('', True) }}</div>
 									<div class="mt-auto d-flex justify-content-end text-muted align-items-center w-100">
 										<small>
 											{{ '%s: ' % __('Last modified') }}

@@ -75,7 +75,7 @@ class OptionList():
 			'optionList', endpoint, poll_uid=poll_uid)
 
 	def read_list(self, poll_uid: str,
-								filter: OptionFilter) -> (Pagination, [Option]):
+				  filter: OptionFilter) -> (Pagination, [Option]):
 		"""
 		Return pagination and list of option entities filtered by filter.
 		"""
@@ -102,6 +102,17 @@ class OptionList():
 		Delete option entity by uid.
 		"""
 		return OptionStore().delete(uid)
+
+	@staticmethod
+	def options(poll_uid: str) -> [Option]:
+		"""
+		Return list of option entities filtered by poll_uid.
+		"""
+		poll = PollStore().read(poll_uid)
+		option_count, option_list = OptionStore().read_list(
+			poll.id, None, None, None, None
+		)
+		return option_list
 
 
 class ReordererForm(ReordererFormAbstract):
