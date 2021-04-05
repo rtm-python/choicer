@@ -23,6 +23,7 @@ CHOICER_PATH = os.path.dirname(__file__)
 CHOICER_JSON = 'choicer.json'
 POLL_FILE_EXT = '.poll'
 VOTE_FILE_EXT = '.vote'
+IMGS_FILE_EXT = '.imgs'
 LANGUAGES = ['en', 'ru']
 MESSAGES = [
 	{
@@ -107,6 +108,8 @@ class Plugin():
 			self.config['bot_url']['getUpdatesArguments']
 		self.config['bot_url']['sendMessage'] = \
 			self.config['bot_url']['sendMessage'] % self.config['token']
+		self.config['bot_url']['sendPhoto'] = \
+			self.config['bot_url']['sendPhoto'] % self.config['token']
 		self.config['bot_url']['deleteMessage'] = \
 			self.config['bot_url']['deleteMessage'] % self.config['token']
 		self.config['bot_url']['answerCallbackQuery'] = \
@@ -340,6 +343,46 @@ class Plugin():
 			}
 		).json()
 
+	def send_photo(self, chat_id: str, poll_uid: str,
+								 image: str, caption: str) -> dict:
+		"""
+		Send photo within chat message.
+		"""
+		if image is None:
+			return None
+		imgs_filename = os.path.join(CHOICER_PATH, poll_uid + IMGS_FILE_EXT)
+		with open(imgs_filename, 'r') as file:
+			imgs_data = json.loads(file.read())
+		photo = imgs_data.get(image)
+		if photo is not None:
+			response = requests.get(
+				self.config['bot_url']['sendPhoto'],
+				json={
+					'chat_id': chat_id,
+					'caption': caption,
+					'photo': photo['file_id']
+				}
+			)
+			return photo
+		with open(image, 'rb') as file:
+			response = requests.get(
+				self.config['bot_url']['sendPhoto'],
+				params={
+					'chat_id': chat_id,
+					'caption': caption
+				},
+				files={
+					'photo': file
+				}
+			).json()
+			if response['ok']:
+				photo = response['result']['photo'][0]
+		if photo is not None:
+			imgs_data[image] = photo
+			with open(imgs_filename, 'w') as file:
+				file.write(json.dumps(imgs_data))
+		return photo
+
 	def send_poll(self, chat_id: str, poll_uid: str, poll_data: dict) -> dict:
 		"""
 		Send poll within chat message with callback on options.
@@ -352,6 +395,16 @@ class Plugin():
 				}
 			] for index, option in enumerate(poll_data['options'])
 		]
+		photo = self.send_photo(
+			chat_id, poll_uid, poll_data['image'], poll_data['title'])
+		if photo is None:
+			response = requests.get(
+				self.config['bot_url']['sendMessage'],
+				json={
+					'chat_id': chat_id,
+					'text': poll_data['title']
+				}
+			)
 		return requests.get(
 			self.config['bot_url']['sendMessage'],
 			json={
@@ -376,6 +429,16 @@ class Plugin():
 				}
 			]
 		]
+		photo = self.send_photo(
+			chat_id, poll_uid, option_data['image'], option_data['title'])
+		if photo is None:
+			response = requests.get(
+				self.config['bot_url']['sendMessage'],
+				json={
+					'chat_id': chat_id,
+					'text': option_data['title']
+				}
+			)
 		return requests.get(
 			self.config['bot_url']['sendMessage'],
 			json={
@@ -430,6 +493,9 @@ class Plugin():
 		vote_filename = os.path.join(CHOICER_PATH, uid + VOTE_FILE_EXT)
 		with open(vote_filename, 'w') as file:
 			file.write(json.dumps(vote_data))
+		imgs_filename = os.path.join(CHOICER_PATH, uid + IMGS_FILE_EXT)
+		with open(imgs_filename, 'w') as file:
+			file.write(json.dumps({}))
 		return uid
 
 	@staticmethod
@@ -452,19 +518,27 @@ class Plugin():
 		wait for double loop timeout, remove files and return poll data.
 		"""
 		poll_filename = os.path.join(CHOICER_PATH, poll_uid + POLL_FILE_EXT)
-		with open(poll_filename, 'r') as file:
-			poll_data = json.loads(file.read())
-		poll_data['active'] = False
-		with open(poll_filename, 'w') as file:
-			file.write(json.dumps(poll_data))
-		for i in range(2):
-			time.sleep(LOOP_TIMEOUT)
 		vote_filename = os.path.join(CHOICER_PATH, poll_uid + VOTE_FILE_EXT)
-		with open(vote_filename, 'r') as file:
-			vote_data = json.loads(file.read())
-		poll_data = {**poll_data, **vote_data}
-		os.remove(poll_filename)
-		os.remove(vote_filename)
+		imgs_filename = os.path.join(CHOICER_PATH, poll_uid + IMGS_FILE_EXT)
+		if os.path.isfile(poll_filename):
+			with open(poll_filename, 'r') as file:
+				poll_data = json.loads(file.read())
+			poll_data['active'] = False
+			with open(poll_filename, 'w') as file:
+				file.write(json.dumps(poll_data))
+			for i in range(2):
+				time.sleep(LOOP_TIMEOUT)
+			with open(vote_filename, 'r') as file:
+				vote_data = json.loads(file.read())
+			poll_data = {**poll_data, **vote_data}
+		else:
+			poll_data = None
+		if os.path.isfile(poll_filename):
+			os.remove(poll_filename)
+		if os.path.isfile(vote_filename):
+			os.remove(vote_filename)
+		if os.path.isfile(imgs_filename):
+			os.remove(imgs_filename)
 		return poll_data
 
 	@staticmethod

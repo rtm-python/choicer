@@ -125,7 +125,8 @@ class PollList():
 			'image': os.path.join(file.path, file.name),
 			'options': []
 		}
-		vote_data = poll.vote_data
+		vote_data = None \
+			if poll.vote_data is None else json.loads(poll.vote_data)
 		for option, file in OptionList.options(uid):
 			poll_data['options'] += [
 				{
@@ -139,7 +140,7 @@ class PollList():
 			poll_count, poll_list =	PollStore().read_list(
 				None, None, None, None, free_uid)
 			if poll_count > 0:
-				stop(poll_list[0][0].uid)
+				PollList.stop(poll_list[0][0].uid)
 			free_uid = ChoicerPlugin.free_poll()
 		data_uid = ChoicerPlugin.play_poll(poll_data, vote_data)
 		return PollStore().set_data_uid(uid=uid, data_uid=data_uid)
@@ -152,11 +153,12 @@ class PollList():
 		poll = PollStore().read(uid)
 		if poll.data_uid is not None:
 			poll_data = ChoicerPlugin.stop_poll(poll.data_uid)
-			vote_data = {
-				'results': poll_data['results'],
-				'voters': poll_data['voters']
-			}
+			if poll_data is not None:
+				vote_data = {
+					'results': poll_data['results'],
+					'voters': poll_data['voters']
+				}
+				poll = PollStore().set_vote_data(
+					uid=uid, vote_data=json.dumps(vote_data))
 			poll = PollStore().set_data_uid(uid=uid, data_uid=None)
-			poll = PollStore().set_vote_data(
-				uid=uid, vote_data=json.dumps(vote_data))
 		return poll
