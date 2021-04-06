@@ -277,7 +277,7 @@ class Plugin():
 				).json()
 				return True
 			option_index = int(option_index)
-			vote_data['results'][option_index] += 1
+			vote_data['results'][option_index]['count'] += 1
 			vote_data['voters']['count'] += 1
 			vote_data['voters']['vote'][from_id] = option_index
 			with open(vote_filename, 'w') as file:
@@ -484,7 +484,12 @@ class Plugin():
 			file.write(json.dumps(poll_data))
 		if vote_data is None:
 			vote_data = {
-				'results': [0] * len(poll_data['options']),
+				'results': [
+					{
+						'title': option['title'],
+						'count': 0
+					} for option in poll_data['options']
+				],
 				'voters': {
 					'count': 0,
 					'vote': {} # {from_id: options_index}

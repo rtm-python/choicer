@@ -34,30 +34,8 @@ def run_choicer():
 	"""
 	Run PluginManager to communicate with application choicer bot.
 	"""
-#	from plugins.choicer import Plugin as ChoicerPlugin
-#	poll_uid = ChoicerPlugin.play_poll(
-#		{
-#			'title': 'Kazak Aruy',
-#			'description': 'Beauty Contest',
-#			'image': None,
-#			'options': [
-#				{
-#					'title': 'Alua Alyspaeva',
-#					'description': 'Kostanai, Kazakhstan',
-#					'image': None
-#				},
-#				{
-#					'title': 'Alua Alyspaeva',
-#					'description': 'Kostanai, Kazakhstan',
-#					'image': None
-#				}
-#			]
-#		}
-#	)
-#	logging.basicConfig(format=CONFIG.get('logging'), level='INFO')
+	logging.basicConfig(format=CONFIG.get('logging'), level='INFO')
 	PluginManager('choicer').execute('run')
-#	print(ChoicerPlugin.read_poll(poll_uid))
-#	print(ChoicerPlugin.stop_poll(poll_uid))
 
 
 @application.cli.command('run-admin')
