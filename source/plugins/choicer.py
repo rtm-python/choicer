@@ -35,8 +35,8 @@ MESSAGES = [
 		'ru': 'Нет активных голосований'
 	},
 	{
-		'en': 'Confirm',
-		'ru': 'Подтвердить'
+		'en': 'Make your choice',
+		'ru': 'Сделайте свой выбор'
 	},
 	{
 		'en': 'Choice confirmed',
@@ -207,7 +207,7 @@ class Plugin():
 				).json()
 				return True
 			response = self.send_poll(
-				message['chat']['id'], poll_uid, poll_data
+				message['chat']['id'], language, poll_uid, poll_data
 			)
 		else:
 			return True
@@ -230,23 +230,6 @@ class Plugin():
 			if callback['from'].get('language_code') in LANGUAGES else 'en'
 		if '-option-' in callback['data']:
 			poll_uid, option_index = callback['data'].split('-option-')
-			poll_filename = os.path.join(CHOICER_PATH, poll_uid + POLL_FILE_EXT)
-			with open(poll_filename, 'r') as file:
-				poll_data = json.loads(file.read())
-			option_index = int(option_index)
-			response = requests.get(
-				self.config['bot_url']['answerCallbackQuery'],
-				json={
-					'callback_query_id': callback['id'],
-					'text': 'Success'
-				}
-			)
-			response = self.send_option(
-				callback['message']['chat']['id'], language,
-				poll_uid, option_index, poll_data['options'][option_index]
-			)
-		elif '-confirm-' in callback['data']:
-			poll_uid, option_index = callback['data'].split('-confirm-')
 			vote_filename = os.path.join(CHOICER_PATH, poll_uid + VOTE_FILE_EXT)
 			if not os.path.isfile(vote_filename):
 				response = requests.get(
@@ -344,46 +327,45 @@ class Plugin():
 		).json()
 
 	def send_photo(self, chat_id: str, poll_uid: str,
-								 image: str, caption: str) -> dict:
+								 image: str, caption: str,
+								 inline_keyboard = None) -> dict:
 		"""
 		Send photo within chat message.
 		"""
 		if image is None:
 			return None
+		msg_data = { 'chat_id': chat_id, 'caption': caption }
+		reply_markup = { 'inline_keyboard': inline_keyboard } \
+			if inline_keyboard is not None else {}
+		# load imgs data to send file_id for previously uploaded photo
 		imgs_filename = os.path.join(CHOICER_PATH, poll_uid + IMGS_FILE_EXT)
 		with open(imgs_filename, 'r') as file:
 			imgs_data = json.loads(file.read())
 		photo = imgs_data.get(image)
-		if photo is not None:
+		if photo is not None: # previously uploaded photo present with file_id
+			msg_data['photo'] = photo['file_id']
 			response = requests.get(
 				self.config['bot_url']['sendPhoto'],
-				json={
-					'chat_id': chat_id,
-					'caption': caption,
-					'photo': photo['file_id']
-				}
+				json={ **msg_data, 'reply_markup': reply_markup }
 			)
 			return photo
-		with open(image, 'rb') as file:
+		with open(image, 'rb') as file: # upload photo and store photo with file_id
 			response = requests.get(
-				self.config['bot_url']['sendPhoto'],
-				params={
-					'chat_id': chat_id,
-					'caption': caption
-				},
-				files={
-					'photo': file
-				}
+				self.config['bot_url']['sendPhoto'], files={ 'photo': file },
+				params={ **msg_data, 'reply_markup': json.dumps(reply_markup) }
 			).json()
 			if response['ok']:
 				photo = response['result']['photo'][0]
-		if photo is not None:
+			else:
+				print(response)
+		if photo is not None: # photo successfully uploaded
 			imgs_data[image] = photo
 			with open(imgs_filename, 'w') as file:
 				file.write(json.dumps(imgs_data))
 		return photo
 
-	def send_poll(self, chat_id: str, poll_uid: str, poll_data: dict) -> dict:
+	def send_poll(self, chat_id: str, language: str,
+								poll_uid: str, poll_data: dict) -> dict:
 		"""
 		Send poll within chat message with callback on options.
 		"""
@@ -395,26 +377,41 @@ class Plugin():
 				}
 			] for index, option in enumerate(poll_data['options'])
 		]
-		photo = self.send_photo(
-			chat_id, poll_uid, poll_data['image'], poll_data['title'])
+		message = ', '.join([ poll_data['title'], poll_data['description'] ])
+		photo = self.send_photo(chat_id, poll_uid, poll_data['image'], message)
 		if photo is None:
 			response = requests.get(
 				self.config['bot_url']['sendMessage'],
-				json={
-					'chat_id': chat_id,
-					'text': poll_data['title']
-				}
+				json={ 'chat_id': chat_id, 'text': message }
 			)
+		for index, option in enumerate(poll_data['options']):
+			inline_keyboard = [
+				[
+					{
+						'text': option['title'],
+						'callback_data': '%s-option-%d' % (poll_uid, index)
+					}
+				]
+			]
+			message = ', '.join([ option['title'], option['description'] ])
+			photo = self.send_photo(
+				chat_id, poll_uid, option['image'], message, inline_keyboard)
+			if photo is None:
+				response = requests.get(
+					self.config['bot_url']['sendMessage'],
+					json={
+						'chat_id': chat_id, 'text': message,
+						'reply_markup': { 'inline_keyboard': inline_keyboard }
+					}
+				)
 		return requests.get(
 			self.config['bot_url']['sendMessage'],
 			json={
 				'chat_id': chat_id,
-				'text': poll_data['description'] or poll_data['title'],
-				'reply_markup':{
-					'inline_keyboard': inline_keyboard
-				}
+				'text': MESSAGES[2][language]
 			}
 		).json()
+
 
 	def send_option(self, chat_id: str, language: str,
 									poll_uid: str, option_index: int, option_data: dict) -> dict:
@@ -487,6 +484,7 @@ class Plugin():
 				'results': [
 					{
 						'title': option['title'],
+						'image': option['image'],
 						'count': 0
 					} for option in poll_data['options']
 				],

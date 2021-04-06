@@ -1,5 +1,5 @@
 {%- set logout_span -%}<span class="nav-icon oi oi-account-logout"></span>{%- endset -%}
-{%- set menu_items = [ ('#', __('Live')), (url_for('poll.get_catalog'), __('Catalog')), (url_for('root.sign_out'), logout_span) ] -%}
+{%- set menu_items = [ (url_for('live.get_last_results'), __('Live')), (url_for('poll.get_catalog'), __('Catalog')), (url_for('root.sign_out'), logout_span) ] -%}
 <header class="sticky-top shadow">
 	<div class="ui-background"></div>
 	<div class="ui-foreground d-flex w-100 justify-content-between align-items-center">
