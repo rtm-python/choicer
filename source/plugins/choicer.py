@@ -39,12 +39,16 @@ MESSAGES = [
 		'ru': 'Сделайте свой выбор'
 	},
 	{
-		'en': 'Choice confirmed',
-		'ru': 'Выбор подтвержден'
+		'en': 'Choice accepted',
+		'ru': 'Выбор принят'
 	},
 	{
 		'en': 'Choice not accepted',
 		'ru': 'Выбор не принят'
+	},
+	{
+		'en': 'Update results',
+		'ru': 'Обновить результаты'
 	}
 ]
 KEYBOARDS = [
@@ -108,6 +112,8 @@ class Plugin():
 			self.config['bot_url']['getUpdatesArguments']
 		self.config['bot_url']['sendMessage'] = \
 			self.config['bot_url']['sendMessage'] % self.config['token']
+		self.config['bot_url']['editMessageText'] = \
+			self.config['bot_url']['editMessageText'] % self.config['token']
 		self.config['bot_url']['sendPhoto'] = \
 			self.config['bot_url']['sendPhoto'] % self.config['token']
 		self.config['bot_url']['deleteMessage'] = \
@@ -243,7 +249,8 @@ class Plugin():
 			with open(vote_filename, 'r') as file:
 				vote_data = json.loads(file.read())
 			from_id = str(callback['from']['id'])
-			if vote_data['voters']['vote'].get(from_id) is not None:
+			if vote_data['voters']['vote'].get(from_id) is not None and False:
+				# already voted user
 				response = requests.get(
 					self.config['bot_url']['answerCallbackQuery'],
 					json={
@@ -259,26 +266,64 @@ class Plugin():
 					}
 				).json()
 				return True
-			option_index = int(option_index)
-			vote_data['results'][option_index]['count'] += 1
-			vote_data['voters']['count'] += 1
-			vote_data['voters']['vote'][from_id] = option_index
-			with open(vote_filename, 'w') as file:
-				file.write(json.dumps(vote_data))
-			response = requests.get(
-				self.config['bot_url']['sendMessage'],
-				json={
-					'chat_id': callback['message']['chat']['id'],
-					'text': MESSAGES[3][language]
-				}
-			).json()
+			# response success callback
 			response = requests.get(
 				self.config['bot_url']['answerCallbackQuery'],
 				json={
 					'callback_query_id': callback['id'],
 					'text': 'Success'
 				}
-			).json()
+			)
+			# accept vote and recalculate percents
+			option_index = int(option_index)
+			vote_data['results'][option_index]['count'] += 1
+			vote_data['voters']['count'] += 1
+			vote_data['voters']['vote'][from_id] = option_index
+			total = 100
+			min_percent = 100
+			min_index = 0
+			for index, option in enumerate(vote_data['results']):
+				option['percent'] = \
+						100 * option['count'] // vote_data['voters']['count']
+				total -= option['percent']
+				if option['percent'] > 0 and option['percent'] < min_percent:
+					min_percent = option['percent']
+					min_index = index
+			if total > 0:
+				vote_data['results'][min_index]['percent'] += total
+			with open(vote_filename, 'w') as file:
+				file.write(json.dumps(vote_data))
+			response = self.send_results(
+				callback['message']['chat']['id'], poll_uid,
+				None, language, vote_data
+			)
+		elif '-results-' in callback['data']:
+			poll_uid, message_id = callback['data'].split('-results-')
+			vote_filename = os.path.join(CHOICER_PATH, poll_uid + VOTE_FILE_EXT)
+			if not os.path.isfile(vote_filename):
+				response = requests.get(
+					self.config['bot_url']['answerCallbackQuery'],
+					json={
+						'callback_query_id': callback['id'],
+						'text': 'Fail'
+					}
+				).json()
+				return True
+			# response success callback
+			response = requests.get(
+				self.config['bot_url']['answerCallbackQuery'],
+				json={
+					'callback_query_id': callback['id'],
+					'text': 'Success'
+				}
+			)
+			# send results from vote file
+			with open(vote_filename, 'r') as file:
+				vote_data = json.loads(file.read())
+			response = self.send_results(
+				callback['message']['chat']['id'], poll_uid,
+				int(message_id), language, vote_data
+			)
 		else: # Ignore other callbacks
 			response = requests.get(
 				self.config['bot_url']['answerCallbackQuery'],
@@ -286,7 +331,7 @@ class Plugin():
 					'callback_query_id': callback['id'],
 					'text': 'Fail'
 				}
-			).json()
+			)
 			return True
 		if not response['ok']:
 			logging.error(response)
@@ -412,40 +457,57 @@ class Plugin():
 			}
 		).json()
 
-
-	def send_option(self, chat_id: str, language: str,
-									poll_uid: str, option_index: int, option_data: dict) -> dict:
+	def send_results(self, chat_id: str, poll_uid: str, message_id: int,
+									 language: str, vote_data: dict) -> dict:
 		"""
-		Send poll's option within chat message with callback on confirmation.
+		Send poll's results within chat message with callback to update.
 		"""
-		inline_keyboard = [
+		results = '\r\n'.join(
 			[
-				{
-					'text': MESSAGES[2][language],
-					'callback_data': '%s-confirm-%d' % (poll_uid, option_index)
-				}
+				'<strong>%s</strong> - %d%%' % (
+					option['title'], option['percent']
+				) for option in vote_data['results']
 			]
-		]
-		photo = self.send_photo(
-			chat_id, poll_uid, option_data['image'], option_data['title'])
-		if photo is None:
+		)
+		if message_id is None:
 			response = requests.get(
 				self.config['bot_url']['sendMessage'],
 				json={
 					'chat_id': chat_id,
-					'text': option_data['title']
+					'text': results,
+					'parse_mode': 'HTML'
 				}
-			)
-		return requests.get(
-			self.config['bot_url']['sendMessage'],
-			json={
-				'chat_id': chat_id,
-				'text': option_data['description'] or option_data['title'],
-				'reply_markup':{
-					'inline_keyboard': inline_keyboard
+			).json()
+			if not response['ok']:
+				logging.error(response)
+				return False
+			message_id = int(response['result']['message_id'])
+			inline_keyboard = [
+				[
+					{
+						'text': MESSAGES[5][language],
+						'callback_data': '%s-results-%d' % (poll_uid, message_id)
+					}
+				]
+			]
+			return requests.get(
+				self.config['bot_url']['sendMessage'],
+				json={
+					'chat_id': chat_id,
+					'text': MESSAGES[3][language],
+					'reply_markup': { 'inline_keyboard': inline_keyboard }
 				}
-			}
-		).json()
+			).json()
+		else:
+			return requests.get(
+				self.config['bot_url']['editMessageText'],
+				json={
+					'chat_id': chat_id,
+					'message_id': message_id,
+					'text': results,
+					'parse_mode': 'HTML'
+				}
+			).json()
 
 	def send_callback(self, chat_id: str, message: str,
 							 			options: list) -> dict:
