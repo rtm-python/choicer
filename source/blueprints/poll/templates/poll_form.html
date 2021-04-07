@@ -46,6 +46,8 @@
 {%- endset -%}
 {%- set additional_items -%}
 	{%- if poll_uid -%}
+		<a class="nav-item pl-zero" href="{{ url_for('poll.delete_results', uid=poll_uid) }}"><span class="nav-icon oi oi-delete"></span><div class="d-none d-sm-inline">{{ __('Delete Results') }}</div></a>
+		<div class="nav-separator"></div>
 		<a class="nav-item pl-zero" href="{{ url_for('poll.get_option_catalog', poll_uid=poll_uid) }}"><span class="nav-icon oi oi-project"></span><div class="d-none d-sm-inline">{{ __('Poll Options') }}</div></a>
 	{%- endif -%}
 {%- endset -%}

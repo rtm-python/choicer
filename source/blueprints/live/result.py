@@ -53,22 +53,13 @@ class Result():
 		"""
 		if poll is None:
 			return ''
-		vote_data = json.loads(poll.vote_data)
-		total = vote_data['voters']['count']
-		min_percent = 100
-		min_index = 0
-		total_percent = 0
-		for index, option in enumerate(vote_data['results']):
-			option['percent'] = 100 * option['count'] // total
-			total_percent += option['percent']
-			if min_percent > option['percent']:
-				min_percent = option['percent']
-				min_index = index
-		if total_percent < 100:
-			vote_data['results'][min_index]['percent'] += 100 - total_percent
+		if poll.data_uid is None:
+			vote_data = json.loads(poll.vote_data)
+		else:
+			vote_data = ChoicerPlugin.read_poll(poll.data_uid)
 		results = [
 			'%d|%d|%s|%s' % (
 				option['count'], option['percent'], option['image'], option['title']
 			) for option in vote_data['results']
 		]
-		return '\r\n'.join([str(total)] + results)
+		return '\r\n'.join([str(vote_data['voters']['count'])] + results)

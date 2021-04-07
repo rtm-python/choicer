@@ -39,12 +39,12 @@ MESSAGES = [
 		'ru': 'Сделайте свой выбор'
 	},
 	{
-		'en': 'Choice accepted',
-		'ru': 'Выбор принят'
+		'en': 'Vote accepted',
+		'ru': 'Голос принят'
 	},
 	{
-		'en': 'Choice not accepted',
-		'ru': 'Выбор не принят'
+		'en': 'Vote previously already accepted',
+		'ru': 'Голос уже принят ранее'
 	},
 	{
 		'en': 'Update results',
@@ -249,7 +249,7 @@ class Plugin():
 			with open(vote_filename, 'r') as file:
 				vote_data = json.loads(file.read())
 			from_id = str(callback['from']['id'])
-			if vote_data['voters']['vote'].get(from_id) is not None and False:
+			if vote_data['voters']['vote'].get(from_id) is not None:
 				# already voted user
 				response = requests.get(
 					self.config['bot_url']['answerCallbackQuery'],
@@ -258,11 +258,15 @@ class Plugin():
 						'text': 'Fail'
 					}
 				).json()
+				option_index = vote_data['voters']['vote'][from_id]
 				response = requests.get(
 					self.config['bot_url']['sendMessage'],
 					json={
 						'chat_id': callback['message']['chat']['id'],
-						'text': MESSAGES[4][language]
+						'text': '%s: %s' % (
+							MESSAGES[4][language],
+							vote_data['results'][option_index]['title']
+						)
 					}
 				).json()
 				return True
@@ -295,7 +299,7 @@ class Plugin():
 				file.write(json.dumps(vote_data))
 			response = self.send_results(
 				callback['message']['chat']['id'], poll_uid,
-				None, language, vote_data
+				None, language, vote_data, option_index
 			)
 		elif '-results-' in callback['data']:
 			poll_uid, message_id = callback['data'].split('-results-')
@@ -322,7 +326,7 @@ class Plugin():
 				vote_data = json.loads(file.read())
 			response = self.send_results(
 				callback['message']['chat']['id'], poll_uid,
-				int(message_id), language, vote_data
+				int(message_id), language, vote_data, None
 			)
 		else: # Ignore other callbacks
 			response = requests.get(
@@ -422,7 +426,7 @@ class Plugin():
 				}
 			] for index, option in enumerate(poll_data['options'])
 		]
-		message = ', '.join([ poll_data['title'], poll_data['description'] ])
+		message = ', '.join([ poll_data['title'] or '', poll_data['description'] or '' ])
 		photo = self.send_photo(chat_id, poll_uid, poll_data['image'], message)
 		if photo is None:
 			response = requests.get(
@@ -438,7 +442,7 @@ class Plugin():
 					}
 				]
 			]
-			message = ', '.join([ option['title'], option['description'] ])
+			message = ', '.join([ option['title'] or '', option['description'] or '' ])
 			photo = self.send_photo(
 				chat_id, poll_uid, option['image'], message, inline_keyboard)
 			if photo is None:
@@ -458,7 +462,7 @@ class Plugin():
 		).json()
 
 	def send_results(self, chat_id: str, poll_uid: str, message_id: int,
-									 language: str, vote_data: dict) -> dict:
+									 language: str, vote_data: dict, option_index: int) -> dict:
 		"""
 		Send poll's results within chat message with callback to update.
 		"""
@@ -480,7 +484,9 @@ class Plugin():
 			).json()
 			if not response['ok']:
 				logging.error(response)
-				return False
+				return response
+			if option_index is None:
+				return response
 			message_id = int(response['result']['message_id'])
 			inline_keyboard = [
 				[
@@ -494,7 +500,10 @@ class Plugin():
 				self.config['bot_url']['sendMessage'],
 				json={
 					'chat_id': chat_id,
-					'text': MESSAGES[3][language],
+					'text': '%s: %s' % (
+						MESSAGES[3][language],
+						vote_data['results'][option_index]['title']
+					),
 					'reply_markup': { 'inline_keyboard': inline_keyboard }
 				}
 			).json()
@@ -547,7 +556,8 @@ class Plugin():
 					{
 						'title': option['title'],
 						'image': option['image'],
-						'count': 0
+						'count': 0,
+						'percent': 0
 					} for option in poll_data['options']
 				],
 				'voters': {

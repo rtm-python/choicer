@@ -127,6 +127,17 @@ def update(uid: str):
 	)
 
 
+@blueprint.route('/results/<uid>/delete/', methods=('GET',))
+#@permission_required
+def delete_results(uid: str):
+	"""
+	Delete poll's results (vote_data) by uid
+	and return redirect to update poll.
+	"""
+	poll_catalog.PollStore().set_vote_data(uid, None)
+	return redirect(url_for('poll.update', uid=uid))
+
+
 @blueprint.route('/delete/<uid>/', methods=('GET',))
 #@permission_required
 def delete(uid: str):
@@ -237,7 +248,6 @@ def create_option(poll_uid: str):
 			option_history.OptionHistoryList.create(
 				current_user.user.id, option.id, 'create'
 			)
-			poll_catalog.PollStore().set_vote_data(poll_uid, None)
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
 	return render_template(
 		'option_form.html',
@@ -260,7 +270,6 @@ def update_option(poll_uid: str, uid: str):
 			option_history.OptionHistoryList.create(
 				current_user.user.id, option.id, 'update'
 			)
-			poll_catalog.PollStore().set_vote_data(poll_uid, None)
 			return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
 	return render_template(
 		'option_form.html',
@@ -280,5 +289,4 @@ def delete_option(poll_uid: str, uid: str):
 	option_history.OptionHistoryList.create(
 		current_user.user.id, option.id, 'delete'
 	)
-	poll_catalog.PollStore().set_vote_data(poll_uid, None)
 	return redirect(url_for('poll.get_option_catalog', poll_uid=poll_uid))
