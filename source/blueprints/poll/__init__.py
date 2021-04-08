@@ -134,7 +134,10 @@ def delete_results(uid: str):
 	Delete poll's results (vote_data) by uid
 	and return redirect to update poll.
 	"""
-	poll_catalog.PollStore().set_vote_data(uid, None)
+	poll = poll_catalog.PollStore().set_vote_data(uid, None)
+	poll_history.PollHistoryList.create(
+		current_user.user.id, poll.id, 'delete results'
+	)
 	return redirect(url_for('poll.update', uid=uid))
 
 

@@ -35,8 +35,20 @@ def get_live():
 	poll = result.Result.get_last_poll()
 	return render_template(
 		'result.html',
-		poll_title = poll.title,
-		vote_data = result.Result.get_vote_data(poll)
+		poll_title=poll.title,
+		vote_data=result.Result.get_vote_data(poll)
+	)
+
+
+@blueprint.route('/image/<uid>/', methods=('GET',))
+#@permission_required
+def get_image(uid: str):
+	"""
+	Return image on page by uid.
+	"""
+	return render_template(
+		'image.html',
+		uid=uid
 	)
 
 

@@ -1,0 +1,9 @@
+{%- extends "layout.html" -%}
+{%- set hidden_content = True -%}
+{%- set title = 'Image' -%}
+{%- block content -%}
+	<img class="fullpage-image" src="{{ url_for('root.download', uid=uid) }}" />
+{%- endblock -%}
+{%- set action_items -%}
+	<a class="nav-item pl-zero" href="{{ url_for('live.get_live') }}"><span class="nav-icon oi oi-arrow-thick-left"></span><div class="d-none d-sm-inline">{{ __('Live') }}</div></a>
+{%- endset -%}
