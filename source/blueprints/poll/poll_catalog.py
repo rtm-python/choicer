@@ -122,7 +122,10 @@ class PollList():
 		poll_data = {
 			'title': poll.title,
 			'description': poll.description,
-			'image': os.path.join(file.path, file.name),
+			'image': {
+				'filepath': os.path.join(file.path, file.name),
+				'uid': file.uid,
+			},
 			'options': []
 		}
 		vote_data = None \
@@ -132,7 +135,10 @@ class PollList():
 				{
 					'title': option.title,
 					'description': option.description,
-					'image': os.path.join(file.path, file.name)
+					'image': {
+						'filepath': os.path.join(file.path, file.name),
+						'uid': file.uid,
+					}
 				}
 			]
 		free_uid = ChoicerPlugin.free_poll()

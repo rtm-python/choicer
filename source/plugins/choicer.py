@@ -376,7 +376,7 @@ class Plugin():
 		).json()
 
 	def send_photo(self, chat_id: str, poll_uid: str,
-								 image: str, caption: str,
+								 image: dict, caption: str,
 								 inline_keyboard = None) -> dict:
 		"""
 		Send photo within chat message.
@@ -390,7 +390,7 @@ class Plugin():
 		imgs_filename = os.path.join(CHOICER_PATH, poll_uid + IMGS_FILE_EXT)
 		with open(imgs_filename, 'r') as file:
 			imgs_data = json.loads(file.read())
-		photo = imgs_data.get(image)
+		photo = imgs_data.get(image['filepath'])
 		if photo is not None: # previously uploaded photo present with file_id
 			msg_data['photo'] = photo['file_id']
 			response = requests.get(
@@ -398,7 +398,7 @@ class Plugin():
 				json={ **msg_data, 'reply_markup': reply_markup }
 			)
 			return photo
-		with open(image, 'rb') as file: # upload photo and store photo with file_id
+		with open(image['filepath'], 'rb') as file: # upload photo and store photo with file_id
 			response = requests.get(
 				self.config['bot_url']['sendPhoto'], files={ 'photo': file },
 				params={ **msg_data, 'reply_markup': json.dumps(reply_markup) }
@@ -408,7 +408,7 @@ class Plugin():
 			else:
 				print(response)
 		if photo is not None: # photo successfully uploaded
-			imgs_data[image] = photo
+			imgs_data[image['filepath']] = photo
 			with open(imgs_filename, 'w') as file:
 				file.write(json.dumps(imgs_data))
 		return photo

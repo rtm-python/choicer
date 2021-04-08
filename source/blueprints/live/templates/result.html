@@ -1,0 +1,46 @@
+{%- extends "layout.html" -%}
+{%- set hidden_content = True -%}
+{%- set title = 'Live' -%}
+{%- block content -%}
+	{%- if vote_data -%}
+		<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 m-0">
+			{%- for option in vote_data['results'] -%}
+				<div class="card shadow p-2">
+					<div class="ui-background"></div>
+					<div class="ui-foreground">
+						<div class="row g-2">
+							<div class="col-12 col-sm-4 col-md-3 col-lg-2">
+								<div class="catalog-image">
+									<img src="{{ url_for('root.download', uid=option['image']['uid']) }}"/>
+								</div>
+							</div>
+							<div class="col-12 col-sm-8 col-md-9 col-lg-10">
+								<div class="d-flex align-items-start flex-column h-100 w-100">
+									<div class="d-flex justify-content-between align-items-center w-100">
+										<h5 class="text-left">{{ option['title'] }} <small class="text-muted">({{ option['count'] }})</small></h5>
+										<h5 class="text-left">{{ option['percent'] }}%</h5>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{%- endfor -%}
+		</div>
+	{%- else -%}
+		<div class="row row-cols-1 g-2 m-0">
+			<div class="card shadow p-2">
+				<div class="ui-background"></div>
+				<div class="ui-foreground">
+					<div class="text-center w-100">{{ __('No vote data found') }}</div>
+				</div>
+			</div>
+		</div>
+	{%- endif -%}
+{%- endblock -%}
+{%- set action_items -%}
+	{{ poll_title + ' (' + __('total votes' + ': ') }}{%- if vote_data -%}{{ vote_data['voters']['count']}}{%- else -%}{{ 0 }}{%- endif -%}{{ ')' }}
+{%- endset -%}
+{%- set additional_items -%}
+	<a class="nav-item pl-zero" href="{{ url_for('live.get_last_results') }}"><span class="nav-icon oi oi-spreadsheet"></span><div class="d-none d-sm-inline">{{ __('Raw') }}</div></a>
+{%- endset -%}

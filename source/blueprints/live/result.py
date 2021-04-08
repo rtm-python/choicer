@@ -47,9 +47,9 @@ class Result():
 		return Result.get_results(poll)
 
 	@staticmethod
-	def get_results(poll: Poll) -> str:
+	def get_vote_data(poll: Poll) -> dict:
 		"""
-		Return results for poll by uid.
+		Return vote data for poll by uid.
 		"""
 		if poll is None:
 			return ''
@@ -57,9 +57,17 @@ class Result():
 			vote_data = json.loads(poll.vote_data)
 		else:
 			vote_data = ChoicerPlugin.read_poll(poll.data_uid)
+		return vote_data
+
+	@staticmethod
+	def get_results(poll: Poll) -> str:
+		"""
+		Return raw results for poll by uid.
+		"""
+		vote_data = Result.get_vote_data(poll)
 		results = [
 			'%d|%d|%s|%s' % (
-				option['count'], option['percent'], option['image'], option['title']
+				option['count'], option['percent'], option['image']['uid'], option['title']
 			) for option in vote_data['results']
 		]
 		return '\r\n'.join([str(vote_data['voters']['count'])] + results)
