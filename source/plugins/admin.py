@@ -105,7 +105,6 @@ class Plugin():
 		"""
 		permissions = []
 		packages = folder.replace('/', '.').split('source.', 1)[-1]
-		packages = packages.replace('.__init__', '')
 		for entry in os.listdir(folder):
 			path = os.path.join(folder, entry)
 			if entry.endswith('.py'):
@@ -117,9 +116,14 @@ class Plugin():
 						elif match:
 							match = False
 							func_name = line.strip().split(' ')[1].split('(', 1)[0]
-							permissions += [
-								'%s.%s.%s' % (packages, entry.split('.py', 1)[0], func_name)
-							]
+							if entry == '__init__.py':
+								permissions += [
+									'%s.%s' % (packages, func_name)
+								]
+							else:
+								permissions += [
+									'%s.%s.%s' % (packages, entry.split('.py', 1)[0], func_name)
+								]
 			elif os.path.isdir(path):
 				permissions += self.initiate_from_routes(path)
 		return permissions
