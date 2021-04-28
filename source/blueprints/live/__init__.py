@@ -10,6 +10,7 @@ import os
 # Application modules import
 import blueprints
 from config import STATIC_PATH
+from plugins.admin import permission_required
 
 # Additional libraries import
 from flask import Blueprint
@@ -19,7 +20,8 @@ from flask import render_template
 blueprint = Blueprint(
 	'live', __name__,
 	static_folder=STATIC_PATH,
-	template_folder=os.path.join(os.path.dirname(__file__), 'templates')
+	template_folder=os.path.abspath(
+		os.path.join(os.path.dirname(__file__), 'templates'))
 )
 
 # Routes handling modules import

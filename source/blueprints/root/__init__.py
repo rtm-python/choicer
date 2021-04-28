@@ -27,7 +27,8 @@ from flask_login import current_user
 blueprint = Blueprint(
 	'root', __name__,
 	static_folder=STATIC_PATH,
-	template_folder=os.path.join(os.path.dirname(__file__), 'templates')
+	template_folder=os.path.abspath(
+		os.path.join(os.path.dirname(__file__), 'templates'))
 )
 
 # Routes handling modules import
@@ -57,7 +58,7 @@ def get_home(url_token: str = None):
 
 
 @blueprint.route('/sign-out/', methods=('GET',))
-#@permission_required
+@permission_required
 def sign_out():
 	"""
 	Return home page after sign out.
@@ -67,7 +68,7 @@ def sign_out():
 
 
 @blueprint.route('/upload/', methods=('POST',))
-#@permission_required
+@permission_required
 def upload():
 	"""
 	Upload file and return result.

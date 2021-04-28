@@ -24,7 +24,8 @@ from flask_login import current_user
 blueprint = Blueprint(
 	'poll', __name__,
 	static_folder=STATIC_PATH,
-	template_folder=os.path.join(os.path.dirname(__file__), 'templates')
+	template_folder=os.path.abspath(
+		os.path.join(os.path.dirname(__file__), 'templates'))
 )
 
 # Routes handling modules import
@@ -38,7 +39,7 @@ from blueprints.poll import option_form
 
 @blueprint.route('/', methods=('GET', 'POST'))
 @blueprint.route('/catalog/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def get_catalog():
 	"""
 	Return poll catalog page.
@@ -61,7 +62,7 @@ def get_catalog():
 
 
 @blueprint.route('/history/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def get_history():
 	"""
 	Return poll history page.
@@ -84,7 +85,7 @@ def get_history():
 
 
 @blueprint.route('/create/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def create():
 	"""
 	Return poll create page.
@@ -105,7 +106,7 @@ def create():
 
 
 @blueprint.route('/update/<uid>/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def update(uid: str):
 	"""
 	Return poll update page.
@@ -128,7 +129,7 @@ def update(uid: str):
 
 
 @blueprint.route('/results/<uid>/delete/', methods=('GET',))
-#@permission_required
+@permission_required
 def delete_results(uid: str):
 	"""
 	Delete poll's results (vote_data) by uid
@@ -142,7 +143,7 @@ def delete_results(uid: str):
 
 
 @blueprint.route('/delete/<uid>/', methods=('GET',))
-#@permission_required
+@permission_required
 def delete(uid: str):
 	"""
 	Delete poll by uid and return redirect to catalog.
@@ -155,7 +156,7 @@ def delete(uid: str):
 
 
 @blueprint.route('/start/<uid>/', methods=('GET',))
-#@permission_required
+@permission_required
 def start(uid: str):
 	"""
 	Start poll by uid.
@@ -168,7 +169,7 @@ def start(uid: str):
 
 
 @blueprint.route('/stop/<uid>/', methods=('GET',))
-#@permission_required
+@permission_required
 def stop(uid: str):
 	"""
 	Stop poll by uid.
@@ -182,7 +183,7 @@ def stop(uid: str):
 
 @blueprint.route('/<poll_uid>/option/', methods=('GET', 'POST'))
 @blueprint.route('/<poll_uid>/option/catalog/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def get_option_catalog(poll_uid: str):
 	"""
 	Return poll's option catalog page.
@@ -215,7 +216,7 @@ def get_option_catalog(poll_uid: str):
 
 
 @blueprint.route('/<poll_uid>/option/history/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def get_option_history(poll_uid: str):
 	"""
 	Return poll's option history page.
@@ -239,7 +240,7 @@ def get_option_history(poll_uid: str):
 
 
 @blueprint.route('/<poll_uid>/option/create/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def create_option(poll_uid: str):
 	"""
 	Return poll's option create page.
@@ -261,7 +262,7 @@ def create_option(poll_uid: str):
 
 
 @blueprint.route('/<poll_uid>/option/update/<uid>/', methods=('GET', 'POST'))
-#@permission_required
+@permission_required
 def update_option(poll_uid: str, uid: str):
 	"""
 	Return poll's option update page.
@@ -283,7 +284,7 @@ def update_option(poll_uid: str, uid: str):
 
 
 @blueprint.route('/<poll_uid>/option/delete/<uid>/', methods=('GET',))
-#@permission_required
+@permission_required
 def delete_option(poll_uid: str, uid: str):
 	"""
 	Delete poll's option by uid and return redirect to option catalog.
