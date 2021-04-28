@@ -115,7 +115,7 @@ class Plugin():
 							match = True
 						elif match:
 							match = False
-							func_name = line.strip().split(' ')[-1].split('(', 1)[0]
+							func_name = line.strip().split(' ')[1].split('(', 1)[0]
 							permissions += [
 								'%s.%s.%s' % (packages, entry.split('.py', 1)[0], func_name)
 							]
