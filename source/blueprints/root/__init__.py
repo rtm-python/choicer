@@ -13,6 +13,7 @@ import blueprints
 from blueprints.__form__ import FileForm
 from config import STATIC_PATH
 from config import TEMPLATE_PATH
+from plugins.admin import permission_required
 
 # Additional libraries import
 from flask import Blueprint
