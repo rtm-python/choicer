@@ -105,7 +105,7 @@ class Plugin():
 		"""
 		permissions = []
 		packages = folder.replace('/', '.').split('source.', 1)[-1]
-		packages = packages.replace('.__init__')
+		packages = packages.replace('.__init__', '')
 		for entry in os.listdir(folder):
 			path = os.path.join(folder, entry)
 			if entry.endswith('.py'):
