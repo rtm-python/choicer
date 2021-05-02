@@ -60,7 +60,11 @@ class SignInForm(InputForm):
 				)
 				login_user(SignedInUser(user), remember=True)
 				logging.debug('Sign in as user %s (%s)' % \
-					(' '.join([user.first_name, user.last_name]), user.from_id))
+					(
+						' '.join([str(user.first_name), str(user.last_name)]),
+						user.from_id
+					)
+				)
 				blueprints.set_value(
 					'mobile', self.has_touch_screen.data == 'true')
 			return redirect(url_for('root.get_home'))
@@ -83,7 +87,11 @@ class SignInForm(InputForm):
 					)
 					login_user(SignedInUser(user), remember=True)
 					logging.debug('Sign in as user %s (%s)' % \
-						(' '.join([user.first_name, user.last_name]), user.from_id))
+						(
+							' '.join([str(user.first_name), str(user.last_name)]),
+							user.from_id
+						)
+					)
 					blueprints.set_value(
 						'mobile', self.has_touch_screen.data == 'true')
 					return { 'redirect': url_for('root.get_home') }

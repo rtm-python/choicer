@@ -145,7 +145,7 @@ class Plugin():
 				choices = ['0: Exit'] + [
 					'%d: %s (last login: %s) %s' % (
 						index,
-						' '.join([user.first_name, user.last_name]),
+						' '.join([str(user.first_name), str(user.last_name)]),
 						user.modified_utc,
 						user.uid
 					) for index, user in enumerate(users, start=1)
