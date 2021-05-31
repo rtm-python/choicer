@@ -193,9 +193,25 @@ footer {
 	left: 0;
 	right: 0;
 	margin: auto;
-	padding: 3.5rem 0 2.5rem 0;
+	padding: 0;
 	max-width: 100%;
 	max-height: 100%;
 	width: auto;
 	height: auto;
+}
+
+.blurred-fullpage-image {
+	position: fixed;
+	top: 0px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	padding: 0;
+	min-width: 100%;
+	min-height: 100%;
+	filter: blur(3px);
+	-webkit-filter: blur(3px);
+	overflow-x: hidden;
+	overflow-y: hidden;
 }

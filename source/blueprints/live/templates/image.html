@@ -1,7 +1,8 @@
-{%- extends "layout.html" -%}
+{%- extends "layout_image.html" -%}
 {%- set hidden_content = True -%}
 {%- set title = 'Image' -%}
 {%- block content -%}
+	<img class="blurred-fullpage-image" src="{{ url_for('root.download', uid=uid) }}" />
 	<img class="fullpage-image" src="{{ url_for('root.download', uid=uid) }}" />
 {%- endblock -%}
 {%- set action_items -%}

@@ -68,7 +68,7 @@ class Result():
 		if vote_data is None:
 			return ''
 		results = [
-			'%d|%d|%s|%s' % (
+			'%d\t%d\t%s\t%s' % (
 				option['count'], option['percent'], option['image']['uid'], option['title']
 			) for option in vote_data['results']
 		]

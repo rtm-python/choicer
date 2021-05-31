@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Initial blueprint module to handle permission.
+Module to handle admin plugin.
 """
 
 # Standard libraries import
@@ -16,6 +16,7 @@ from models.entity.permission import Permission
 from models.user_store import UserStore
 from models.entity.user import User
 from config import define_list
+from config import CONFIG
 
 # Additional libraries import
 from flask_login import current_user
@@ -54,7 +55,7 @@ def del_permissions(user_id: int, permissions: list) -> None:
 		if value in current_permissions:
 			permission_list = PermissionStore().read_list(
 				0, None, user_id, value)[1]
-			PermissionStore().delete(permission_list[0].uid)
+			PermissionStore().delete(permission_list[0].id)
 			current_permissions.remove(value)
 
 
@@ -72,7 +73,7 @@ def permission_required(function):
 			logging.debug('Redirect unauthorized (anonymous) user')
 			return redirect(url_for('root.get_home'))
 		permission_value = '%s.%s' % (
-			function.__module__,
+			function.__module__.replace('.__init__', ''),
 			function.__name__
 		)
 		permissions = PermissionStore().read_list(
@@ -113,7 +114,7 @@ class Plugin():
 					for line in file:
 						if line.strip() == '@permission_required':
 							match = True
-						elif match:
+						elif match and not line.startswith('@'):
 							match = False
 							func_name = line.strip().split(' ')[1].split('(', 1)[0]
 							if entry == '__init__.py':
@@ -143,11 +144,10 @@ class Plugin():
 				user = None
 				users = UserStore().read_list(0, None, None, None)[1]
 				choices = ['0: Exit'] + [
-					'%d: %s (last login: %s) %s' % (
+					'%d: %s (last login: %s) [%s] %s' % (
 						index,
 						' '.join([str(user.first_name), str(user.last_name)]),
-						user.modified_utc,
-						user.uid
+						user.modified_utc, user.from_id, user.uid,
 					) for index, user in enumerate(users, start=1)
 				]
 				choice = self.get_choice(choices)

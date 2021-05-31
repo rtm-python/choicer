@@ -12,8 +12,6 @@ import time
 import logging
 import secrets
 import string
-from datetime import datetime
-from datetime import timedelta
 
 # Additional libraries import
 import requests
