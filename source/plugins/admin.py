@@ -55,7 +55,7 @@ def del_permissions(user_id: int, permissions: list) -> None:
 		if value in current_permissions:
 			permission_list = PermissionStore().read_list(
 				0, None, user_id, value)[1]
-			PermissionStore().delete(permission_list[0].id)
+			PermissionStore().delete(permission_list[0].uid)
 			current_permissions.remove(value)
 
 
