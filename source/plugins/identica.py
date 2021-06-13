@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Module to handle plugin manager.
+Module to handle identica plugin.
 """
 
 # Standard libraries import
@@ -83,6 +83,8 @@ COMMANDS = [
 		'description': ''
 	}
 ]
+REQUEST_TIMEOUT = (3.0, 15.0)
+
 
 class Plugin():
 	"""
@@ -96,7 +98,7 @@ class Plugin():
 
 	def __init__(self, domain_url: str = None) -> "Plugin":
 		"""
-		Inititate Plugin object with domain_url and
+		Inititate Plugin object with debug_mode and
 		configuration data.
 		"""
 		self.config_filename = os.path.join(IDENTICA_PATH, IDENTICA_JSON)
@@ -135,7 +137,10 @@ class Plugin():
 			self.config['auth_url'] = \
 				'/'.join([self.domain_url] + self.config['auth_url'].split('/')[-2:])
 		# Initiate update message (ignore previous)
-		response = requests.get(self.config['bot_url']['getUpdates'] % (-1, 1))
+		response = requests.get(
+			self.config['bot_url']['getUpdates'] % (-1, 1),
+			timeout=REQUEST_TIMEOUT
+		)
 		if not response.json()['ok']:
 			logging.error('Initiate update message error')
 			return
@@ -165,7 +170,9 @@ class Plugin():
 						self.init_config() # Read config if read not True
 						result = True
 					response = requests.get(
-						self.config['bot_url']['getUpdates'] % (self.offset, 25))
+						self.config['bot_url']['getUpdates'] % (self.offset, 25),
+						timeout=REQUEST_TIMEOUT
+					)
 					if not response.json()['ok']:
 						logging.error('Get updates error (offset = %d): %s' % \
 													(self.offset, response.json()))
@@ -182,7 +189,7 @@ class Plugin():
 						elif item.get('callback_query'):
 							if not self.handle_callback(item['callback_query']):
 								result = False
-					# List message files to send messages
+					# List message files to send messages (and document/photo)
 					mtime = time.time()
 					for filename in os.listdir(IDENTICA_PATH):
 						if filename.endswith(MSG_FILE_EXT):
@@ -190,10 +197,10 @@ class Plugin():
 								msg_data = json.loads(file.read())
 								response = requests.get(
 									self.config['bot_url']['sendMessage'],
-									json=msg_data
+									json=msg_data, timeout=REQUEST_TIMEOUT
 								)
 								if not response.json()['ok']:
-									logging.error(response)
+									logging.error(response.json())
 									result = False
 							os.remove(os.path.join(IDENTICA_PATH, filename))
 						elif (filename.endswith(URL_FILE_EXT) or \
@@ -318,14 +325,16 @@ class Plugin():
 				json={
 					'callback_query_id': callback['id'],
 					'text': confirmation_message
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			)
 			response = requests.get(
 				self.config['bot_url']['sendMessage'],
 				json={
 					'chat_id': callback['message']['chat']['id'],
 					'text': MESSAGES[0][language],
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			)
 			return True
 		else: # Ignore other callbacks
@@ -341,7 +350,8 @@ class Plugin():
 		"""
 		return requests.get(
 			self.config['bot_url']['setMyCommands'],
-			json={ 'commands': COMMANDS }
+			json={ 'commands': COMMANDS },
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	def send_keyboard(self, chat_id: str,
@@ -367,7 +377,8 @@ class Plugin():
 						] for button in keyboard
 					]
 				}
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	def send_callback(self, chat_id: str, message: str,
@@ -389,7 +400,8 @@ class Plugin():
 				'reply_markup':{
 					'inline_keyboard': inline_keyboard
 				}
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	def send_url(self, chat_id: str, message: str,
@@ -410,7 +422,8 @@ class Plugin():
 						]
 					]
 				}
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	def send_pin(self, chat_id: str, message: str,
@@ -425,7 +438,8 @@ class Plugin():
 				'chat_id': chat_id,
 				'text': 'PIN: <code>%s</code>' % pin,
 				'parse_mode': 'HTML'
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		)
 		inline_keyboard = [
 			[
@@ -444,7 +458,8 @@ class Plugin():
 				'reply_markup':{
 					'inline_keyboard': inline_keyboard
 				}
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	@staticmethod
@@ -516,5 +531,10 @@ class Plugin():
 				for _ in range(PWD_LENGTH)
 			) + MSG_FILE_EXT
 		)
-		with open(msg_filename, 'w') as file:
-			file.write(json.dumps({ 'chat_id': chat_id, 'text': text }))
+		with open(msg_filename, 'w', encoding='utf8') as file:
+			file.write(
+				json.dumps(
+					{ 'chat_id': chat_id, 'text': text },
+					ensure_ascii=False
+				)
+			)

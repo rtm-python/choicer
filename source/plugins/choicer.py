@@ -69,6 +69,7 @@ for keyboard in KEYBOARDS:
 		for key, value in button[0]['title'].items():
 			PSEUDO_COMMANDS[value] = button[0]['id']
 LOOP_TIMEOUT = 1
+REQUEST_TIMEOUT = (3.0, 15.0)
 
 
 class Plugin():
@@ -119,7 +120,10 @@ class Plugin():
 		self.config['bot_url']['answerCallbackQuery'] = \
 			self.config['bot_url']['answerCallbackQuery'] % self.config['token']
 		# Initiate update message (ignore previous)
-		response = requests.get(self.config['bot_url']['getUpdates'] % (-1, 1))
+		response = requests.get(
+			self.config['bot_url']['getUpdates'] % (-1, 1),
+			timeout=REQUEST_TIMEOUT
+		)
 		if not response.json()['ok']:
 			logging.error('Initiate update message error')
 			return
@@ -149,7 +153,9 @@ class Plugin():
 						self.init_config() # Read config if read not True
 						result = True
 					response = requests.get(
-						self.config['bot_url']['getUpdates'] % (self.offset, 25))
+						self.config['bot_url']['getUpdates'] % (self.offset, 25),
+						timeout=REQUEST_TIMEOUT
+					)
 					if not response.json()['ok']:
 						logging.error('Get updates error (offset = %d): %s' % \
 													(self.offset, response.json()))
@@ -207,7 +213,8 @@ class Plugin():
 					json={
 						'chat_id': message['chat']['id'],
 						'text': MESSAGES[1][language]
-					}
+					},
+					timeout=REQUEST_TIMEOUT
 				).json()
 				return True
 			response = self.send_poll(
@@ -241,7 +248,8 @@ class Plugin():
 					json={
 						'callback_query_id': callback['id'],
 						'text': 'Fail'
-					}
+					},
+					timeout=REQUEST_TIMEOUT
 				).json()
 				return True
 			with open(vote_filename, 'r') as file:
@@ -254,7 +262,8 @@ class Plugin():
 					json={
 						'callback_query_id': callback['id'],
 						'text': 'Fail'
-					}
+					},
+					timeout=REQUEST_TIMEOUT
 				).json()
 				option_index = vote_data['voters']['vote'][from_id]
 				response = requests.get(
@@ -265,7 +274,8 @@ class Plugin():
 							MESSAGES[4][language],
 							vote_data['results'][option_index]['title']
 						)
-					}
+					},
+					timeout=REQUEST_TIMEOUT
 				).json()
 				return True
 			# response success callback
@@ -274,7 +284,8 @@ class Plugin():
 				json={
 					'callback_query_id': callback['id'],
 					'text': 'Success'
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			)
 			# accept vote and recalculate percents
 			option_index = int(option_index)
@@ -308,7 +319,8 @@ class Plugin():
 					json={
 						'callback_query_id': callback['id'],
 						'text': 'Fail'
-					}
+					},
+					timeout=REQUEST_TIMEOUT
 				).json()
 				return True
 			# response success callback
@@ -317,7 +329,8 @@ class Plugin():
 				json={
 					'callback_query_id': callback['id'],
 					'text': 'Success'
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			)
 			# send results from vote file
 			with open(vote_filename, 'r') as file:
@@ -332,7 +345,8 @@ class Plugin():
 				json={
 					'callback_query_id': callback['id'],
 					'text': 'Fail'
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			)
 			return True
 		if not response['ok']:
@@ -346,7 +360,8 @@ class Plugin():
 		"""
 		return requests.get(
 			self.config['bot_url']['setMyCommands'],
-			json={ 'commands': COMMANDS }
+			json={ 'commands': COMMANDS },
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	def send_keyboard(self, chat_id: str,
@@ -370,7 +385,8 @@ class Plugin():
 						] for button in keyboard
 					]
 				}
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	def send_photo(self, chat_id: str, poll_uid: str,
@@ -393,13 +409,15 @@ class Plugin():
 			msg_data['photo'] = photo['file_id']
 			response = requests.get(
 				self.config['bot_url']['sendPhoto'],
-				json={ **msg_data, 'reply_markup': reply_markup }
+				json={ **msg_data, 'reply_markup': reply_markup },
+				timeout=REQUEST_TIMEOUT
 			)
 			return photo
 		with open(image['filepath'], 'rb') as file: # upload photo and store photo with file_id
 			response = requests.get(
 				self.config['bot_url']['sendPhoto'], files={ 'photo': file },
-				params={ **msg_data, 'reply_markup': json.dumps(reply_markup) }
+				params={ **msg_data, 'reply_markup': json.dumps(reply_markup) },
+				timeout=REQUEST_TIMEOUT
 			).json()
 			if response['ok']:
 				photo = response['result']['photo'][0]
@@ -429,7 +447,8 @@ class Plugin():
 		if photo is None:
 			response = requests.get(
 				self.config['bot_url']['sendMessage'],
-				json={ 'chat_id': chat_id, 'text': message }
+				json={ 'chat_id': chat_id, 'text': message },
+				timeout=REQUEST_TIMEOUT
 			)
 		for index, option in enumerate(poll_data['options']):
 			inline_keyboard = [
@@ -449,14 +468,16 @@ class Plugin():
 					json={
 						'chat_id': chat_id, 'text': message,
 						'reply_markup': { 'inline_keyboard': inline_keyboard }
-					}
+					},
+					timeout=REQUEST_TIMEOUT
 				)
 		return requests.get(
 			self.config['bot_url']['sendMessage'],
 			json={
 				'chat_id': chat_id,
 				'text': MESSAGES[2][language]
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	def send_results(self, chat_id: str, poll_uid: str, message_id: int,
@@ -478,7 +499,8 @@ class Plugin():
 					'chat_id': chat_id,
 					'text': results,
 					'parse_mode': 'HTML'
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			).json()
 			if not response['ok']:
 				logging.error(response)
@@ -503,7 +525,8 @@ class Plugin():
 						vote_data['results'][option_index]['title']
 					),
 					'reply_markup': { 'inline_keyboard': inline_keyboard }
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			).json()
 		else:
 			return requests.get(
@@ -513,7 +536,8 @@ class Plugin():
 					'message_id': message_id,
 					'text': results,
 					'parse_mode': 'HTML'
-				}
+				},
+				timeout=REQUEST_TIMEOUT
 			).json()
 
 	def send_callback(self, chat_id: str, message: str,
@@ -535,7 +559,8 @@ class Plugin():
 				'reply_markup':{
 					'inline_keyboard': inline_keyboard
 				}
-			}
+			},
+			timeout=REQUEST_TIMEOUT
 		).json()
 
 	@staticmethod
