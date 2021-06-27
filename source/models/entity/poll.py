@@ -25,7 +25,7 @@ class Poll(Entity):
 	description = Column(database.String, index=True, nullable=True)
 	image_id = Column(
 		database.Integer, ForeignKey('file.id'),
-		index=True, nullable=False
+		index=True, nullable=True
 	)
 	data_uid = Column(database.String, index=True, nullable=True)
 	vote_data = Column(database.String, index=True, nullable=True)

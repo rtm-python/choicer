@@ -12,7 +12,9 @@
 						<div class="row g-2">
 							<div class="col-12 col-sm-4 col-md-3 col-lg-2">
 								<div class="catalog-image">
-									<img src="{{ url_for('root.download', uid=file.uid) }}"/>
+									{%- if file -%}
+										<img src="{{ url_for('root.download', uid=file.uid) }}"/>
+									{%- endif -%}
 								</div>
 							</div>
 							<div class="col-12 col-sm-8 col-md-9 col-lg-10">

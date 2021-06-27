@@ -58,19 +58,21 @@ class OptionForm(InputWithFilesForm):
 		"""
 		Create option entity.
 		"""
-		file = self.save_files(1)[0]
+		files = self.save_files(1)
+		file_id = files[0].id if files else None
 		return OptionStore().create(
 			poll_id=PollStore().read(poll_uid).id,
 			title=self.title.data, description=self.description.data,
-			image_id=file.id
+			image_id=file_id
 		)
 
 	def update(self, uid: str) -> Option:
 		"""
 		Update option entity.
 		"""
-		file = self.save_files(1)[0]
+		files = self.save_files(1)
+		file_id = files[0].id if files else None
 		return OptionStore().update(
 			uid=uid, title=self.title.data, description=self.description.data,
-			image_id=file.id
+			image_id=file_id
 		)

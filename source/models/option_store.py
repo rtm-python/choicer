@@ -64,7 +64,7 @@ class OptionStore(Store):
 		"""
 		query = database.session.query(
 			Option, File
-		).join(
+		).outerjoin(
 			File, File.id == Option.image_id
 		).filter(
 			True if poll_id is None else \

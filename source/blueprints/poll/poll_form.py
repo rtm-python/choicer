@@ -57,18 +57,20 @@ class PollForm(InputWithFilesForm):
 		"""
 		Create poll entity.
 		"""
-		file = self.save_files(1)[0]
+		files = self.save_files(1)
+		file_id = files[0].id if files else None
 		return PollStore().create(
 			title=self.title.data, description=self.description.data,
-			image_id=file.id
+			image_id=file_id
 		)
 
 	def update(self, uid: str) -> Poll:
 		"""
 		Update poll entity.
 		"""
-		file = self.save_files(1)[0]
+		files = self.save_files(1)
+		file_id = files[0].id if files else None
 		return PollStore().update(
 			uid=uid, title=self.title.data, description=self.description.data,
-			image_id=file.id
+			image_id=file_id
 		)

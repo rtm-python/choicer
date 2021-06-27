@@ -69,7 +69,7 @@ class Result():
 			return ''
 		results = [
 			'%d\t%d\t%s\t%s' % (
-				option['count'], option['percent'], option['image']['uid'], option['title']
+				option['count'], option['percent'], option['image']['uid'] or '', option['title']
 			) for option in vote_data['results']
 		]
 		return '\r\n'.join([str(vote_data['voters']['count'])] + results)

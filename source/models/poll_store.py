@@ -69,7 +69,7 @@ class PollStore(Store):
 		"""
 		query = database.session.query(
 			Poll, File
-		).join(
+		).outerjoin(
 			File, File.id == Poll.image_id
 		).filter(
 			True if title is None else \

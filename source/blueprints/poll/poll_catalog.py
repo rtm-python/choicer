@@ -123,8 +123,9 @@ class PollList():
 			'title': poll.title,
 			'description': poll.description,
 			'image': {
-				'filepath': os.path.join(file.path, file.name),
-				'uid': file.uid,
+				'filepath': os.path.join(file.path, file.name) \
+					if file else None,
+				'uid': file.uid if file else None,
 			},
 			'options': []
 		}
@@ -136,8 +137,9 @@ class PollList():
 					'title': option.title,
 					'description': option.description,
 					'image': {
-						'filepath': os.path.join(file.path, file.name),
-						'uid': file.uid,
+						'filepath': os.path.join(file.path, file.name) \
+							if file else None,
+						'uid': file.uid if file else None,
 					}
 				}
 			]

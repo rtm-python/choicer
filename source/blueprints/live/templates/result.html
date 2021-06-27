@@ -6,13 +6,17 @@
 		<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 m-0">
 			{%- for option in vote_data['results'] -%}
 				<div class="card shadow p-2">
-					<a href="{{ url_for('live.get_image', uid=option['image']['uid']) }}" class="stretched-link"></a>
+					{%- if option['image']['uid'] -%}
+						<a href="{{ url_for('live.get_image', uid=option['image']['uid']) }}" target="_blank" class="stretched-link"></a>
+					{%- endif -%}
 					<div class="ui-background"></div>
 					<div class="ui-foreground">
 						<div class="row g-2">
 							<div class="col-12 col-sm-6 col-md-4 col-lg-3">
 								<div class="catalog-image">
-									<img src="{{ url_for('root.download', uid=option['image']['uid']) }}"/>
+									{%- if option['image']['uid'] -%}
+										<img src="{{ url_for('root.download', uid=option['image']['uid']) }}"/>
+									{%- endif -%}
 								</div>
 							</div>
 							<div class="col-12 col-sm-6 col-md-8 col-lg-9">
@@ -43,5 +47,5 @@
 	{{ poll_title + ' (' + __('total votes' + ': ') }}{%- if vote_data -%}{{ vote_data['voters']['count']}}{%- else -%}{{ 0 }}{%- endif -%}{{ ')' }}
 {%- endset -%}
 {%- set additional_items -%}
-	<a class="nav-item pl-zero" href="{{ url_for('live.get_last_results') }}"><span class="nav-icon oi oi-spreadsheet"></span><div class="d-none d-sm-inline">{{ __('Raw') }}</div></a>
+	<a class="nav-item pl-zero" href="{{ url_for('live.get_last_results') }}" target="_blank"><span class="nav-icon oi oi-spreadsheet"></span><div class="d-none d-sm-inline">{{ __('Raw') }}</div></a>
 {%- endset -%}
