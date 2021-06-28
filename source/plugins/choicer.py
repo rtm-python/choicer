@@ -395,7 +395,7 @@ class Plugin():
 		"""
 		Send photo within chat message.
 		"""
-		if image is None:
+		if image is None or image['filepath'] is None:
 			return None
 		msg_data = { 'chat_id': chat_id, 'caption': caption }
 		reply_markup = { 'inline_keyboard': inline_keyboard } \
@@ -442,7 +442,9 @@ class Plugin():
 				}
 			] for index, option in enumerate(poll_data['options'])
 		]
-		message = ', '.join([ poll_data['title'] or '', poll_data['description'] or '' ])
+		message = ', '.join(
+			[ poll_data['title'] or '', poll_data['description'] or '' ]
+		)
 		photo = self.send_photo(chat_id, poll_uid, poll_data['image'], message)
 		if photo is None:
 			response = requests.get(
