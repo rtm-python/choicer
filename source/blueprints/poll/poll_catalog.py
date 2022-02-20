@@ -102,6 +102,7 @@ class PollList():
 		"""
 		Delete and return poll entity by uid.
 		"""
+		PollList.stop(uid)
 		return PollStore().delete(uid)
 
 	@staticmethod
