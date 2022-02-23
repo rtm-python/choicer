@@ -620,7 +620,7 @@ class Plugin():
 		poll_filename = os.path.join(CHOICER_PATH, poll_uid + POLL_FILE_EXT)
 		vote_filename = os.path.join(CHOICER_PATH, poll_uid + VOTE_FILE_EXT)
 		imgs_filename = os.path.join(CHOICER_PATH, poll_uid + IMGS_FILE_EXT)
-		if os.path.isfile(poll_filename):
+		try:
 			with open(poll_filename, 'r') as file:
 				poll_data = json.loads(file.read())
 			poll_data['active'] = False
@@ -631,7 +631,7 @@ class Plugin():
 			with open(vote_filename, 'r') as file:
 				vote_data = json.loads(file.read())
 			poll_data = {**poll_data, **vote_data}
-		else:
+		except FileNotFoundError:
 			poll_data = None
 		if os.path.isfile(poll_filename):
 			os.remove(poll_filename)
