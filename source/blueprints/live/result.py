@@ -11,6 +11,7 @@ import json
 # Application modules import
 import blueprints
 from plugins.choicer import Plugin as ChoicerPlugin
+from blueprints.poll.poll_catalog import PollList
 from models.poll_store import PollStore
 from models.entity.poll import Poll
 
@@ -44,7 +45,10 @@ class Result():
 		Return results for last poll.
 		"""
 		poll = Result.get_last_poll()
-		return Result.get_results(poll)
+		try:
+			return Result.get_results(poll)
+		except FileNotFoundError:
+			PollList.stop((poll.uid))
 
 	@staticmethod
 	def get_vote_data(poll: Poll) -> dict:
